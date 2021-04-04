@@ -1,0 +1,54 @@
+Thoregon
+========
+
+ServiceWorker:
+- Immed activation tests
+    - Chrome
+    - Firefox
+    - Safari
+- Fetch:
+    - references
+    - referrer
+- Filesystem API
+    - local filesystem                  (File System Access API)
+    - sandbox persistent filesystem     (File System API)
+- Push messages
+    -> review domain sandbox
+    - Chrome
+    - Firefox
+    - Safari
+
+Loader: DevLoader, ProdLoader
+
+- import
+    - export a Promise
+    --> 1) Promise will not be automatically resolved
+        2) import waits (async) until resource available
+        3) fulfill the waiting import when the resource is available
+            ```js
+            await universe.deferred('property');
+            return 'export default universe.property'
+            ```    
+
+- Browser ServiceWorker
+
+- Node Module Loader https://nodejs.org/dist/latest-v15.x/docs/api/esm.html#esm_hooks
+
+- Loaderadapters
+    - Local Filesystem  -> Chrome only, postpone
+    - Local Client/Server WS Filesystem
+    - IPFS
+
+ComponentResolver
+=================
+
+    - if a module is referenced e.g. /thoregon.aurora
+        - redirect to /thoregon.aurora/index.mjs on NodeJS
+        - redirect to /thoregon.aurora/index.reliant.mjs in Browser
+
+    - ZIP with all evolux, thoregon and terra modules
+        - serviceworker extract to cache
+        - NodeJS extract to filesystem
+
+    - NodeJS
+        -
