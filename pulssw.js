@@ -45,7 +45,6 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', async (event) => {
     let res = await puls.fetch(event);
-    console.log("SW after fetch");
     return res;
 /*
     let reg = self.registration;

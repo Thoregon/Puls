@@ -132,7 +132,7 @@ class Puls {
     async fetch(event) {
         if (!this.cache) await this.beat();
         let request = event.request;
-        console.log(`>> fetch: ${request.method} -> ${request.url}`);
+        // console.log(`>> fetch: ${request.method} -> ${request.url}`);
         // enforce same origin in any case!
         if (self.location.origin !== new URL(request.url).origin) throw Error(`location not allowed (same origin) -> ${request.url}`);
         let cached = await
@@ -148,7 +148,7 @@ class Puls {
                                   response = fetch(event.request);
                               } else {
                                   // Cache hit - return the response from the cached version
-                                  console.log(`>> ! fetch from cache -> ${request.url}`);
+                                  // console.log(`>> ! fetch from cache -> ${request.url}`);
                               }
                               return response;
                           })

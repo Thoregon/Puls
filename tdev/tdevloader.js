@@ -44,7 +44,12 @@ class TDevLoader extends Loader {
         let head = await this.head(pathname)
         if (head.error) return;
         // todo: if 'directory' fetch again with 'index.mjs'
-        if (head.type !== 'file') return;
+        if (head.type !== 'file') {
+            if (head.hasindex) {
+                return Response.redirect(pathjoin(pathname,'index.mjs'), 302);    // 301: permanently moved, 302: temporarily moved
+            }
+            return;
+        }
         let mime = head.mime || puls.getContentType(pathname);
         let stream = await this.read(pathname);
         let meta = { headers: {
@@ -98,19 +103,12 @@ class TDevLoader extends Loader {
            * @param {ReadableStreamDefaultController} controller
            */
           async pull(controller) {
-              console.log("** tdev stream pull");
               try {
                   const { done, content, error, message } = await client.get(path, start, length);
                   if (abort) return;   // if aborted during read don't enqueue anything
-                  if (error) {
-                      controller.error(`${error} ${message}`);
-                      return;
-                  }
-                  let value = content ? Uint8Array.from(content.data) : '';
-                  if (content) controller.enqueue(value);
-                  if (done) {
-                      controller.close();
-                  }
+                  if (error) throw error;
+                  if (content) controller.enqueue(Uint8Array.from(content.data));
+                  if (done) controller.close();
                   start += value.length;
               } catch (error) {
                   controller.error(error);
