@@ -6,10 +6,12 @@
  * @see: {@link https://github.com/Thoregon}
  */
 
-importScripts('./ipfs/ipfs.min.js');
+importScripts('../ipfs.min.js');
 
-class IPFSLoader {
+console.log('$$ ipfsloader');
 
-}
-
-puls.useLoader(new IPFSLoader(), { priority: 2 , cache: true });
+(async () => {
+    let ipfs = await Ipfs.create();
+    console.log('$$ ipfs created');
+    debugger;
+})();

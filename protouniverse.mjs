@@ -58,6 +58,7 @@ Object.defineProperties(thoregon, {
     'embedded':     { value: false,      configurable: false, enumerable: true, writable: false },
     // todo [OPEN]: autoselect other themes like iOS, get user selected theme from 'localStorage'
     'uitheme' :     { value: 'material', configurable: false, enumerable: true, writable: false },
+    'isDev'       : { value: window.location.hostname, configurable: false, enumerable: true, writable: false },
 });
 
 /*
@@ -88,62 +89,136 @@ if (!window.globalThis) properties.globalThis = { value: window, configurable: f
 
 Object.defineProperties(window, properties);
 
+const SERVICEWORKERREQUESTTIMEOUT = 1000;
+
 export default class ProtoUniverse {
 
+    constructor(props) {
+        this._requestQ = {};
+    }
+
     async inflate() {
-        // install service worker with the IPFS peer
-        let wasinstalled = await this.installServiceWorker();
+        let wasinstalled = true;
+        try {
+            // install service worker with the IPFS peer
+            wasinstalled = await this.installServiceWorker();
+        } catch (e) {
+            // todo: handle error properly
+            console.log('%% Service worker registration failed:', e);
+            return;
+        }
         await doAsync();
         if (!wasinstalled) {
-             window.location.reload();
+            // window.location.reload();
         } else {
-            /*
-                    var sworker = new SharedWorker('./sharedworker.js');
-                    // sworker.port.onmessage = (msg) => console.log("msg from sworker", msg);
-                    sworker.port.start();
-                    registration.active.postMessage({ cmd: 'worker', kind: 'ipfs', port: sworker.port }, [sworker.port]);
-            */
+            // establish the IPFS loader
+            await this.initWorkers();
+
             // import basic THORE͛GON components
             let letThereBeLight = (await import('/evolux.universe')).default;
             // and boot
             let universe = await letThereBeLight();
-            universe.logger.info('$$ Universe inflated, dark age overcome');
+            let id = universe.random();     // tmp id for this instance (window)
+            universe.sw = {
+                postMessage: this.serviceWorkerPost,
+                reset      : () => this.serviceWorkerPost({ cmd: 'reset' }),
+                state      : async () => await this.serviceWorkerRequest({ cmd: 'state' })
+            }
         }
     }
 
     async installServiceWorker(opts) {
         let wasinstalled = false;
-        try {
-            if (navigator.serviceWorker.controller) {
-                // console.log("%% service worker already loaded exists");
-                registration = await navigator.serviceWorker.ready; // navigator.serviceWorker.controller;
-                await registration.update();
-                wasinstalled = true;
-                // console.log("%% service worker update");
-            } else {
-                registration = await navigator.serviceWorker.register('./pulssw.js', /*{ scope: '/' }*/);
-                // console.log("%% service worker setup registered");
-                registration = await navigator.serviceWorker.ready;
-                // now wait a moment
-                await timeout(300);
-            }
-            navigator.serviceWorker.addEventListener("message", (event) => this.serviceworkerRequest(event) );
-        } catch (e) {
-            // todo: handle error properly
-            console.log('%% Service worker registration failed:', e);
+
+        if (navigator.serviceWorker.controller) {
+            // console.log("%% service worker already loaded exists");
+            registration = await navigator.serviceWorker.ready; // navigator.serviceWorker.controller;
+            await registration.update();
+            wasinstalled = true;
+            // console.log("%% service worker update");
+        } else {
+            // todo [REFACTOR]: check the support status for workers as module -> https://stackoverflow.com/questions/44118600/web-workers-how-to-import-modules
+            registration = await navigator.serviceWorker.register('./pulssw.js', /*{ scope: '/', type: "module" }*/);
+            // console.log("%% service worker setup registered");
+            registration = await navigator.serviceWorker.ready;
+            // now wait a moment
+            await timeout(300);
         }
+        navigator.serviceWorker.addEventListener("message", async (event) => await this.serviceworkerMessage(event) );
+
         return wasinstalled;
     }
 
-    async serviceworkerRequest(event) {
-        // let message = JSON.parse(event.data);
-        // universe.logger.debug("Message from ServiceWorker", event);
-        console.log("-> Message from ServiceWorker", event.data || 'no data');
+    async serviceworkerMessage(event) {
+        let data = event.data;
+
+        // find handlers for the request
+        let handlers = this._requestQ[data.cmd];
+        if (!handlers) return;
+
+        // cleanup Q
+        delete this._requestQ[data.cmd];
+        // continue processing response
+        handlers.forEach(({ resolve, reject, watchdog }) => {
+            if (watchdog) clearTimeout(watchdog);
+            (data.error) ? reject(error) : resolve(data);
+        });
+    }
+
+    /*async*/ serviceWorkerRequest(msg) {
+        return new Promise(((resolve, reject) => {
+            let handlers = this._requestQ[msg.cmd];
+            let watchdog;
+            if (!handlers) {
+                handlers = [];
+                this._requestQ[msg.cmd] = handlers;
+                if (!thoregon.isDev) {  // no timeout during developing
+                    // only the first request for the same command needs a timeout
+                    watchdog = setTimeout(() => {
+                        let handlers = this._requestQ[msg.cmd];
+                        delete this._requestQ[msg.cmd];
+                        if (handlers) handlers.forEach(({ reject }) => {
+                            reject(new Error("Requets timeout"));
+                        });
+                    }, SERVICEWORKERREQUESTTIMEOUT);
+                }
+            }
+            handlers.push({ resolve, reject, watchdog });
+            registration.active.postMessage(msg);
+        }));
+    }
+
+    serviceWorkerPost(msg, transfer) {
+        registration.active.postMessage(msg, transfer);
+    }
+
+    // todo [REFACTOR]: move to universe.config
+    async initWorkers() {
+        await this.initIpfsLoader();
+        await this.initMatterWorker();
 /*
-        let p = document.createElement('p');
-        p.innerText = JSON.stringify(event);
-        document.getElementById('msg').appendChild(p);
+        sworker.port.onmessage = (evt) => {
+            console.log("$$ msg from sworker -> ", evt.data);
+        }
+        sworker.port.start();
+        sworker.port.postMessage(["A", "1"]);
+        console.log("$$ msg sent to sworker");
+        registration.active.postMessage({ cmd: 'loader', name:'ipfs', kind: 'ipfs', port: sworker.port }, [sworker.port]);
 */
+    }
+
+    async initIpfsLoader() {
+        let res = await this.serviceWorkerRequest({ cmd: 'exists', name: 'ipfs' });
+        if (res.exists) return;     // ipfs loader is runniing
+        var sworker = new SharedWorker('/evolux.matter/lib/loader/ipfsloader.mjs', { name: 'IPFS loader', type: 'module' });
+        let port = sworker.port;
+        // port.start();
+        this.serviceWorkerPost({ cmd: 'loader', name:'ipfs', kind: 'ipfs', cache: false, port }, [port]);
+    }
+
+    async initMatterWorker() {
+        let res = await this.serviceWorkerRequest({ cmd: 'exists', name: 'matter' });
+        if (res.exists) return;     // ipfs loader is runniing
     }
 }
 

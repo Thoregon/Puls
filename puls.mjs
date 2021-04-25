@@ -2,14 +2,18 @@
  *
  * Loaders: can work with or w/o cache
  *
+ * todo:
+ *  - firewall transform streams -> Loader
+ *  - widget loader (build widget script -> browserloader.sendWidgets)
+ *
  * @author: blukassen
  * @licence: MIT
  * @see: {@link https://github.com/Thoregon}
  */
 
-importScripts('./lib/zip.js');
-importScripts('./lib/inflate.js');
-importScripts('./lib/ArrayBufferReader.js');
+importScripts('./lib/zip/zip.js');
+importScripts('./lib/zip/inflate.js');
+importScripts('./lib/zip/ArrayBufferReader.js');
 zip.useWebWorkers = false;  // don't use separate workers, this is a worker
 
 const THOREGONPKG = './lib/thoregon.zip';
@@ -27,16 +31,28 @@ const contentTypesByExtension = {   // todo: add more mime types
     'svg' : 'image/svg+xml',
 };
 
+const ALLOWED_WEB_REQUESTS = [
+    'https://dns.google/',
+    'https://cloudflare-dns.com/',
+];
+
+const requestAllowed = (url) => !!ALLOWED_WEB_REQUESTS.find(location => url.startsWith(location));
+
 /**
  *
  */
 class Puls {
 
     constructor(props) {
-        this._cachingloaders = [];
-        this._noncachingloaders = [];
+        this.reset();
     }
 
+    reset() {
+        this._registry          = {};
+        this._cachingloaders    = [];
+        this._noncachingloaders = [];
+        // other workers
+    }
 
     async beat() {
         // todo:
@@ -121,6 +137,11 @@ class Puls {
         })
     }
 
+    isPermitted(url) {
+        return (self.location.origin === new URL(url).origin)
+               || requestAllowed(url);
+    }
+
     /*
      * fetch
      */
@@ -132,30 +153,34 @@ class Puls {
     async fetch(event) {
         if (!this.cache) await this.beat();
         let request = event.request;
-        // console.log(`>> fetch: ${request.method} -> ${request.url}`);
         // enforce same origin in any case!
-        if (self.location.origin !== new URL(request.url).origin) throw Error(`location not allowed (same origin) -> ${request.url}`);
-        let cached = await
-        event.respondWith(
-            this.fetchNonCaching(request).then(response => {
-                if (!response) {
-                    return caches.match(this.onlyPath(request))
-                          .then(function (response) {
-                              if (!response) {
-                                  console.log(`>> - fetch not in cache -> ${request.url}`);
-                                  // Not in cache - return the result from the live server
-                                  // `fetch` is essentially a "fallback"
-                                  response = fetch(event.request);
-                              } else {
-                                  // Cache hit - return the response from the cached version
-                                  // console.log(`>> ! fetch from cache -> ${request.url}`);
-                              }
-                              return response;
-                          })
-                }
-                return response;
-            })
-        );
+        if (!this.isPermitted(request.url)) throw Error(`location not allowed (same origin) -> ${request.url}`);
+        await event.respondWith((async () => {
+            let pathname = this.onlyPath(request);
+            let response;
+
+            // first lookup non caching loaders (mainly for dev and realtime
+            response = await this.fetchNonCaching(request);
+            if (response) return response;
+
+            // not found, now lookup cache
+            response = await caches.match(pathname);
+            if (response) return response;
+
+            // not found in cache, lookup caching loaders
+            response = await this.fetchCaching(request);
+            if (response) return response;
+
+            // Not found by any loader - return the result from a web server, but only if permitted
+            // `fetch` is essentially a "fallback"
+            response = await fetch(request);
+            // save response in cache
+            // todo [OPEN]
+            //  - consider http cache headers
+            //  - introduce refresh strategy when no headers
+            // await this.cache.put(pathname, response.clone());
+            return response;
+        })());
     }
 
     async fetchNonCaching(request, i) {
@@ -171,12 +196,48 @@ class Puls {
         if (this._cachingloaders.length <= i) return;
         let loader = this._cachingloaders[i];
         let response = await loader.fetch(request);
-        return response || this.fetchNonCaching(request, i+1);
+        return response || this.fetchCaching(request, i+1);
+    }
+
+    /*
+     * message relay
+     */
+
+    async handleMessage(evt) {
+        const messageSource = evt.source;
+        const data           = evt.data;
+        const cmd            = data.cmd;
+
+        switch (cmd) {
+            case 'exists':
+                let exists = !!this._registry[data.name];
+                messageSource.postMessage({ cmd, exists, name: data.name });
+                break;
+            case 'loader':
+                await this.addLoader(data);
+                break;
+            case 'worker':
+                break;
+            case 'state':
+                // todo: add state of each loader
+                messageSource.postMessage({ cmd, name: 'PULS', registry: this._registry, state: 'running' });
+                break;
+            case 'reset':
+                this.reset();
+        }
     }
 
     /*
      * Loaders
      */
+
+    async addLoader(data) {
+        let { name, kind, port, cache, priority } = data;
+        let loader = new MsgPortLoader({ name, kind, port });
+        this.useLoader(loader, { cache: cache || false, priority });
+        // add to registry if no error  (throw)
+        this._registry[name] = { name, kind, cache, priority };
+    }
 
     /**
      * register a loader
@@ -189,12 +250,14 @@ class Puls {
      * @param priority
      * @param cache
      */
-    useLoader(loader, { priority = 9, cache = true } = {}) {
+    async useLoader(loader, { priority, cache = true } = {}) {
         if (!loader) return;
         let q = cache ? this._cachingloaders : this._noncachingloaders;
+        if (priority == undefined) priority = q.length;
         if (q[priority]) return;
+        await loader.start();
+        // add to loaders if no error (throw) at start
         q[priority] = loader;
-        loader.start(); // this runs async! the loader may not be 'ready' when this method returns!
     }
 }
 
@@ -203,7 +266,8 @@ self.puls = new Puls();
 /*
  * now loaders can be defined get loaders
  */
-importScripts('./lib/loader.js')
+importScripts('./lib/loaders/loader.js')
 importScripts('./tdev/tdevloader.js');
+importScripts('./lib/loaders/msgportloader.js');
 // importScripts('./gun/gunloader.js');
 // importScripts('./ipfs/ipfsloader.js');

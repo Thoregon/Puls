@@ -6,4 +6,4 @@
  * @see: {@link https://github.com/Thoregon}
  */
 
-export default {}
+export default () => console.log(">> workerfn!");

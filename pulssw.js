@@ -9,10 +9,12 @@
  */
 
 // just some utils and polyfills
+// import puls from "../Thoregon/www/puls.mjs";
+
 importScripts('./lib/utils.js');
 
 // todo [REFACTOR]: this is a bad workaround to get SEA working. refactor asap
-self.window = self;
+// self.window = self;
 
 importScripts( './puls.mjs');
 // now the PULS is available
@@ -28,6 +30,8 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
+    event.waitUntil(self.clients.claim());
+/*
     self.clients.matchAll({
                               includeUncontrolled: true
                           }).then(function(clientList) {
@@ -35,26 +39,13 @@ self.addEventListener('activate', (event) => {
             return client.url;
         });
         clientList.forEach(client => client.postMessage({ from: 'puls', type: 'activate' }));
-        // console.log(':: Matching clients:', urls.join(', '));
     });
-    // event.waitUntil(() => {});
-    // console.log(':: The service worker is being activated.', event);
-    event.waitUntil(event.target.clients.claim())
-    // return self.clients.claim();
+*/
 });
 
 self.addEventListener('fetch', async (event) => {
     let res = await puls.fetch(event);
     return res;
-/*
-    let reg = self.registration;
-    const messageSource = event.source;
-    if (messageSource) messageSource.postMessage({ "fetch": event.data });
-*/
-    // return fetch(request);
-    /*
-        event.respondWith(fromNetwork(event.request));
-    */
 });
 
 /*
@@ -62,13 +53,7 @@ self.addEventListener('fetch', async (event) => {
  */
 self.addEventListener('message', (event) => {
     // console.log('The service worker received a message.', event);
-    const messageSource = event.source;
-    const data           = event.data;
-
-    if (data.cmd === 'worker') {
-        workers[data.kind] = data.port;
-    }
-
+    puls.handleMessage(event);
     // messageSource.postMessage({ "ack": true });
     /*
         event.waitUntil((async () => {

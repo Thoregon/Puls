@@ -51,7 +51,7 @@ class TDevLoader extends Loader {
             return;
         }
         let mime = head.mime || puls.getContentType(pathname);
-        let stream = await this.read(pathname);
+        let stream = await this.read(pathname, head.size);
         let meta = { headers: {
             'Content-Type':  mime
         } };
@@ -93,15 +93,16 @@ class TDevLoader extends Loader {
     /**
      * get a stream
      */
-    /*async*/ read(path) {
+    /*async*/ read(path, size) {
         let abort = false;
         let client = this;
-        console.log(">> tdev:", path);
-        let start = 0, length = 32768;
+        // console.log(">> tdev:", path);
+        let start = 0, length = size || 262144;
         return new ReadableStream({
            /**
            * @param {ReadableStreamDefaultController} controller
            */
+           // todo! check if Promise holds next pull
           async pull(controller) {
               try {
                   const { done, content, error, message } = await client.get(path, start, length);
@@ -110,9 +111,11 @@ class TDevLoader extends Loader {
                   if (content) controller.enqueue(Uint8Array.from(content.data));
                   if (done) controller.close();
                   start += value.length;
+                  return true;
               } catch (error) {
                   controller.error(error);
               }
+              return false;
           },
           cancel(reason) {
               abort = true;
@@ -124,7 +127,10 @@ class TDevLoader extends Loader {
      * WS handling
      */
 
-    connected() {}
+    connected() {
+        this.stateReady();
+    }
+
     message(message) {
         let res = JSON.parse(message.data);
         if (!res.id) return;
@@ -135,12 +141,14 @@ class TDevLoader extends Loader {
     }
     close(code, reason) {
         delete this.ws;
+        this.statePaused();
         this.reconnect();   // ignore the await
     }
     error(err) {
         console.log(err);
     }
 
+    // todo: switch to SyncManager!
     async reconnect() {
         await timeout(3000);
         await this.doStart();
@@ -148,5 +156,5 @@ class TDevLoader extends Loader {
 }
 
 if (self.location.hostname === 'localhost') {
-    puls.useLoader(new TDevLoader(), { priority: 0 , cache: false });
+    (async () => await puls.useLoader(new TDevLoader(), { priority: 0 , cache: false }) )()
 }
