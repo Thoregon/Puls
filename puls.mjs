@@ -32,11 +32,13 @@ const contentTypesByExtension = {   // todo: add more mime types
 };
 
 const ALLOWED_WEB_REQUESTS = [
-    'https://dns.google/',
-    'https://cloudflare-dns.com/',
+    /^https:\/\/dns.google\/.*/,
+    /^https:\/\/cloudflare-dns.com\/.*/,
+    /^https:\/\/.*.ipfs.io\/.*/,
+    /^https:\/\/cloudflare-ipfs.com\/.*/,
 ];
 
-const requestAllowed = (url) => !!ALLOWED_WEB_REQUESTS.find(location => url.startsWith(location));
+const requestAllowed = (url) => !!ALLOWED_WEB_REQUESTS.find(location => url.match(location));
 
 /**
  *
