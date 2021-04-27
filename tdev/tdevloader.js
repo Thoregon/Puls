@@ -43,7 +43,7 @@ class TDevLoader extends Loader {
         let pathname = new URL(request.url).pathname;
         let head = await this.head(pathname)
         if (head.error) return;
-        // todo: if 'directory' fetch again with 'index.mjs'
+        // redirect to index if exists
         if (head.type !== 'file') {
             if (head.hasindex) {
                 return Response.redirect(pathjoin(pathname,'index.mjs'), 302);    // 301: permanently moved, 302: temporarily moved
@@ -102,20 +102,19 @@ class TDevLoader extends Loader {
            /**
            * @param {ReadableStreamDefaultController} controller
            */
-           // todo! check if Promise holds next pull
-          async pull(controller) {
-              try {
-                  const { done, content, error, message } = await client.get(path, start, length);
-                  if (abort) return;   // if aborted during read don't enqueue anything
-                  if (error) throw error;
-                  if (content) controller.enqueue(Uint8Array.from(content.data));
-                  if (done) controller.close();
-                  start += value.length;
-                  return true;
-              } catch (error) {
-                  controller.error(error);
-              }
-              return false;
+          pull(controller) {
+               (async () => {
+                   try {
+                       const { done, content, error, message } = await client.get(path, start, length);
+                       if (abort) return;   // if aborted during read don't enqueue anything
+                       if (error) throw error;
+                       if (content) controller.enqueue(Uint8Array.from(content.data));
+                       if (done) controller.close();
+                       start += value.length;
+                   } catch (error) {
+                       controller.error(error);
+                   }
+               })();
           },
           cancel(reason) {
               abort = true;

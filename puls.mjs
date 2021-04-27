@@ -121,6 +121,7 @@ class Puls {
 
     // todo [REFACTOR]: this is a primitive and simple mime type matching. exchange by more sophisticated
     getContentType(filename) {
+        if (!filename) return 'text/plain';
         var tokens = filename.split('.');
         var extension = tokens[tokens.length - 1];
         return contentTypesByExtension[extension] || 'text/plain';
@@ -186,7 +187,7 @@ class Puls {
                 return response;
             })());
         } catch (e) {
-            console.log("Fetch error:", e);
+            console.log("Fetch error:", request.url, e);
             throw Error("Can't fetch");
         }
     }
@@ -225,6 +226,9 @@ class Puls {
                 await this.addLoader(data);
                 break;
             case 'worker':
+                break;
+            case 'matter':
+                //
                 break;
             case 'state':
                 // todo: add state of each loader
@@ -277,5 +281,6 @@ self.puls = new Puls();
 importScripts('./lib/loaders/loader.js')
 importScripts('./tdev/tdevloader.js');
 importScripts('./ipfs/ipfsloader.js');
+importScripts('./gun/matterloader.js');
 // importScripts('./lib/loaders/msgportloader.js');
 // importScripts('./gun/gunloader.js');

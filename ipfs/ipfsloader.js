@@ -25,23 +25,22 @@ const IPFSPATH  = /^\/ipfs\/(.+)/;
         return new Promise((resolve, reject) => {
             let url = data.url;
             let pathname = onlyPath(url);
-            if (!this.isResponsible(pathname)) {
-                resolve();
-            }
+            if (!this.isResponsible(pathname)) resolve();  // respond nothing
+
             let cid = this.getIpfsPath(pathname);
-            if (!cid) {
-                // respond not found
-                resolve();
-            }
-            console.log(`** IPFS Loader: CID '${cid}' -> '${url}'`);
+            if (!cid) resolve();  // respond nothing
+
+            // console.log(`** IPFS Loader: CID '${cid}' -> '${url}'`);
             (async () => {
-                // intentionally JS-IPFS has no timeouts. if the requestet URL/CID does not exist, this waits forever
+                // intentionally JS-IPFS has no timeouts.
+                // if the requested URL/CID does not exist, this 'cat' waits forever
                 let notfound = setTimeout(() => {
                     resolve();
-                }, 5000);
+                }, 3000);
 
                 let source = await this.ipfs.cat(cid); // returns an AsyncGenerator
                 clearTimeout(notfound);
+                // todo [OPEN]: use transform stream for decryption
                 let body   = this.toReadableStream(source); // browser can't handle AsyncGenerator, wrap with ReadableStream
                 let meta = {
                     headers: {
@@ -61,7 +60,7 @@ const IPFSPATH  = /^\/ipfs\/(.+)/;
 
     getIpfsPath(url) {
         let match = url.match(IPFSPATH);
-        if (!match || match.length < 2) throw Error('Unrechable url ' + url);
+        if (!match || match.length < 2) return;
         return match[1];
     }
 
@@ -96,6 +95,6 @@ const IPFSPATH  = /^\/ipfs\/(.+)/;
 
 }
 
-(async () => await puls.useLoader(new IPFSLoader(), { priority: 1, cache: false }) )()
+(async () => await puls.useLoader(new IPFSLoader(), { priority: 2, cache: false }) )()
 
 

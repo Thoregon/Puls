@@ -1,10 +1,13 @@
 ;(function(){
 
   /* UNBUILD */
-  var root;
-  if(typeof window !== "undefined"){ root = window }
-  if(typeof global !== "undefined"){ root = global }
-  root = root || {};
+	// *** BL modified START
+	const window = self;
+	const root   = self;
+  // if(typeof window !== "undefined"){ root = window }
+  // if(typeof global !== "undefined"){ root = global }
+  // root = root || {};
+	// *** BL modified END
   var console = root.console || {log: function(){}};
   function USE(arg, req){
     return req? require(arg) : arg.slice? USE[R(arg)] : function(mod, path){
