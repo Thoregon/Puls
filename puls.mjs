@@ -32,10 +32,10 @@ const contentTypesByExtension = {   // todo: add more mime types
 };
 
 const ALLOWED_WEB_REQUESTS = [
-    /^https:\/\/dns.google\/.*/,
-    /^https:\/\/cloudflare-dns.com\/.*/,
-    /^https:\/\/.*.ipfs.io\/.*/,
-    /^https:\/\/cloudflare-ipfs.com\/.*/,
+    /^https:\/\/dns\.google\/.*/,
+    /^https:\/\/cloudflare-dns\.com\/.*/,
+    /^https:\/\/.*\.ipfs\.io\/.*/,
+    /^https:\/\/cloudflare-ipfs\.com\/.*/,
 ];
 
 const requestAllowed = (url) => !!ALLOWED_WEB_REQUESTS.find(location => url.match(location));
@@ -119,11 +119,6 @@ class Puls {
         return '/' + filename;
     }
 
-    onlyPath(request) {
-        let url = request.url || request;
-        return new URL(url).pathname;
-    }
-
     // todo [REFACTOR]: this is a primitive and simple mime type matching. exchange by more sophisticated
     getContentType(filename) {
         var tokens = filename.split('.');
@@ -148,41 +143,52 @@ class Puls {
      * fetch
      */
 
-    // check:
-    //  - reject all requests not to: self.location.origin === new URL(request.url).origin
-    //  - everthing else must be requested from matter (gun) or heavymatter (ipfs)
-    //  - put also fetch from current location to cache
+    /**
+     * ask all loaders for the requested resource
+     *
+     * todo [OPEN]: maintain same request queue
+     *
+     * check:
+     *  - reject all requests not to: self.location.origin === new URL(request.url).origin
+     *  - everthing else must be requested from matter (gun) or heavymatter (ipfs)
+     *  - put also fetch from current location to cache
+     */
     async fetch(event) {
         if (!this.cache) await this.beat();
         let request = event.request;
         // enforce same origin in any case!
         if (!this.isPermitted(request.url)) throw Error(`location not allowed (same origin) -> ${request.url}`);
-        await event.respondWith((async () => {
-            let pathname = this.onlyPath(request);
-            let response;
+        try {
+            await event.respondWith((async () => {
+                let pathname = onlyPath(request);
+                let response;
 
-            // first lookup non caching loaders (mainly for dev and realtime
-            response = await this.fetchNonCaching(request);
-            if (response) return response;
+                // first lookup non caching loaders (mainly for dev and realtime
+                response = await this.fetchNonCaching(request);
+                if (response) return response;
 
-            // not found, now lookup cache
-            response = await caches.match(pathname);
-            if (response) return response;
+                // not found, now lookup cache
+                response = await caches.match(pathname);
+                if (response) return response;
 
-            // not found in cache, lookup caching loaders
-            response = await this.fetchCaching(request);
-            if (response) return response;
+                // not found in cache, lookup caching loaders
+                response = await this.fetchCaching(request);
+                if (response) return response;
 
-            // Not found by any loader - return the result from a web server, but only if permitted
-            // `fetch` is essentially a "fallback"
-            response = await fetch(request);
-            // save response in cache
-            // todo [OPEN]
-            //  - consider http cache headers
-            //  - introduce refresh strategy when no headers
-            // await this.cache.put(pathname, response.clone());
-            return response;
-        })());
+                // Not found by any loader - return the result from a web server, but only if permitted
+                // `fetch` is essentially a "fallback"
+                response = await fetch(request);
+                // save response in cache
+                // todo [OPEN]
+                //  - consider http cache headers
+                //  - introduce refresh strategy when no headers
+                // await this.cache.put(pathname, response.clone());
+                return response;
+            })());
+        } catch (e) {
+            console.log("Fetch error:", e);
+            throw Error("Can't fetch");
+        }
     }
 
     async fetchNonCaching(request, i) {
@@ -270,6 +276,6 @@ self.puls = new Puls();
  */
 importScripts('./lib/loaders/loader.js')
 importScripts('./tdev/tdevloader.js');
-importScripts('./lib/loaders/msgportloader.js');
+importScripts('./ipfs/ipfsloader.js');
+// importScripts('./lib/loaders/msgportloader.js');
 // importScripts('./gun/gunloader.js');
-// importScripts('./ipfs/ipfsloader.js');

@@ -109,10 +109,11 @@ export default class ProtoUniverse {
         }
         await doAsync();
         if (!wasinstalled) {
+            // todo: check if 'serviceworker.skipWaiting()' is sufficient or the page needs a reload on first install
             // window.location.reload();
         } else {
             // establish the IPFS loader
-            await this.initWorkers();
+            // await this.initWorkers();
 
             // import basic THORE͛GON components
             let letThereBeLight = (await import('/evolux.universe')).default;
