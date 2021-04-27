@@ -34,7 +34,7 @@ const LOADERPATH = /^\/matter\/(.+)/;
             while (parts.length > 0) node = node.get(parts.shift());
 
             node.once((obj) => {
-                let body = obj ? JSON.stringify(obj) : '';
+                let body = obj ? JSON.stringify(obj, undefined, 4) : '';
                 let meta = {
                     headers: {
                         'Content-Type': 'application/json'
