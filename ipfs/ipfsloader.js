@@ -54,6 +54,12 @@ const IPFSPATH  = /^\/ipfs\/(.+)/;
         });
     }
 
+    canHandle(request) {
+        let url = request.url;
+        let pathname = onlyPath(url);
+        return this.isResponsible(pathname);
+    }
+
     isResponsible(url) {
         return url.match(IPFSURL);
     }

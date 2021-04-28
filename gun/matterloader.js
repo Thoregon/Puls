@@ -21,6 +21,16 @@ const LOADERPATH = /^\/matter\/(.+)/;
         console.log("** Matter Loader: GUN started");
     }
 
+    canHandle(request) {
+        let url = request.url;
+        let pathname = onlyPath(url);
+        return this.isResponsible(pathname);
+    }
+
+    isResponsible(url) {
+        return url.match(LOADERURL);
+    }
+
     /*async*/ doFetch(data, port) {
         return new Promise((resolve, reject) => {
             let url = data.url;
@@ -49,10 +59,6 @@ const LOADERPATH = /^\/matter\/(.+)/;
         let match = url.match(LOADERPATH);
         if (!match || match.length < 2) return;
         return match[1].split('/');
-    }
-
-    isResponsible(url) {
-        return url.match(LOADERURL);
     }
 
 }
