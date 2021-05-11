@@ -58,7 +58,7 @@ Object.defineProperties(thoregon, {
     'embedded':     { value: false,      configurable: false, enumerable: true, writable: false },
     // todo [OPEN]: autoselect other themes like iOS, get user selected theme from 'localStorage'
     'uitheme' :     { value: 'material', configurable: false, enumerable: true, writable: false },
-    'isDev'       : { value: window.location.hostname, configurable: false, enumerable: true, writable: false },
+    'isDev'       : { value: (window.location.hostname === 'localhost'), configurable: false, enumerable: true, writable: false },
 });
 
 /*
@@ -85,8 +85,10 @@ const properties = {
     // 'process' :     { value: { env: {} },                  configurable: false, enumerable: true, writable: false },
 };
 
+// if missing define 'globalThis'
 if (!window.globalThis) properties.globalThis = { value: window, configurable: false, enumerable: true, writable: false};
 
+// define globals
 Object.defineProperties(window, properties);
 
 const SERVICEWORKERREQUESTTIMEOUT = 1000;

@@ -93,3 +93,11 @@ self.addEventListener('pushsubscriptionchange', function(event) {
 });
 
 // console.log('@@ pulssw.mjs END');
+/*
+    // doesn't got thru 'fetch' handler
+setTimeout(() => {
+    console.log("$$ b4 import ptest");
+    importScripts('/test/ptest.js');
+    console.log("$$ after import ptest");
+}, 5000);
+*/

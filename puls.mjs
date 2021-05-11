@@ -20,15 +20,20 @@ const THOREGONPKG = './lib/thoregon.zip';
 
 var CACHE = 'PULS';
 const contentTypesByExtension = {   // todo: add more mime types
-    'css' : 'text/css',
-    'mjs' : 'application/javascript',
-    'js'  : 'application/javascript',
-    'png' : 'image/png',
-    'jpg' : 'image/jpeg',
-    'jpeg': 'image/jpeg',
-    'html': 'text/html',
-    'htm' : 'text/html',
-    'svg' : 'image/svg+xml',
+    'css'  : 'text/css',
+    'mjs'  : 'application/javascript',
+    'js'   : 'application/javascript',
+    'png'  : 'image/png',
+    'jpg'  : 'image/jpeg',
+    'jpeg' : 'image/jpeg',
+    'html' : 'text/html',
+    'htm'  : 'text/html',
+    'svg'  : 'image/svg+xml',
+    'woff' : 'application/font-woff',
+    'woff2': 'font/woff2',
+    'tty'  : 'font/truetype',
+    'otf'  : 'font/opentype',
+    'eot'  : 'application/vnd.ms-fontobject',
 };
 
 const ALLOWED_WEB_REQUESTS = [
@@ -38,6 +43,13 @@ const ALLOWED_WEB_REQUESTS = [
     /^https:\/\/cloudflare-ipfs\.com\/.*/,
 ];
 
+const SYMLINKS = {
+    'https://thatsme.plus/wp-content/uploads/2020/12/logo.png'                              : '/ext/thatsmelogo.png',
+    'https://fonts.googleapis.com/icon?family=Material+Icons'                               : '/ext/materialicons.css',
+    'https://fonts.gstatic.com/s/materialicons/v85/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2': '/ext/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2',
+}
+
+const resolveSymlink = (url) => SYMLINKS[url];
 const requestAllowed = (url) => !!ALLOWED_WEB_REQUESTS.find(location => url.match(location));
 
 /**
@@ -147,7 +159,10 @@ class Puls {
     /**
      * ask all loaders for the requested resource
      *
-     * todo [OPEN]: maintain same request queue
+     * todo
+     *  - [OPEN]: match loaders with the clientId of the event, may be different
+     *  - [OPEN]: maintain same request queue
+     *
      *
      * check:
      *  - reject all requests not to: self.location.origin === new URL(request.url).origin
@@ -158,6 +173,13 @@ class Puls {
         if (!this.cache) await this.beat();
         let request = event.request;
         // enforce same origin in any case!
+        let symlink = resolveSymlink(request.url);      // todo: check method etc. if this request can really be redirected to a 'local' resource
+        if (symlink) {
+            await event.respondWith((async () => {
+                return Response.redirect(symlink, 301);
+            })());
+            return;
+        }
         if (!this.isPermitted(request.url)) throw Error(`location not allowed (same origin) -> ${request.url}`);
         try {
             await event.respondWith((async () => {
