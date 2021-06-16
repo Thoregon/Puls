@@ -23,6 +23,7 @@ const contentTypesByExtension = {   // todo: add more mime types
     'css'  : 'text/css',
     'mjs'  : 'application/javascript',
     'js'   : 'application/javascript',
+    'json' : 'application/json',
     'png'  : 'image/png',
     'jpg'  : 'image/jpeg',
     'jpeg' : 'image/jpeg',
