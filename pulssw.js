@@ -15,6 +15,16 @@ importScripts('./lib/utils.js');
 
 // todo [REFACTOR]: this is a bad workaround to get SEA working. refactor asap
 // self.window = self;
+thoregon = {
+    isDev : false
+};
+
+// *** some profiling methods
+Object.defineProperties(thoregon, {
+    'birth'      : { value: Date.now(), configurable: false, enumerable: true, writable: false },
+    'since'      : { get: () => Date.now() - thoregon.birth, configurable: false, enumerable: true },
+    'checkpoint' : { value: (msg) => console.log(msg, Date.now() - thoregon.birth), configurable: false, enumerable: true, writable: false },
+});
 
 importScripts( './puls.mjs');
 // now the PULS is available

@@ -159,6 +159,4 @@ class TDevLoader extends Loader {
     }
 }
 
-if (self.location.hostname === 'localhost') {
-    (async () => await puls.useLoader(new TDevLoader(), { priority: 0 , cache: false }) )()
-}
+(async () => await puls.useLoader(new TDevLoader(), { priority: 0 , cache: false }) )()

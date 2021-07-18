@@ -5,6 +5,9 @@
  * todo:
  *  - firewall transform streams -> Loader
  *  - widget loader (build widget script -> browserloader.sendWidgets)
+ *  - multiple caches
+ *      - thoregon system
+ *      - component namespaces
  *
  * @author: blukassen
  * @licence: MIT
@@ -69,6 +72,17 @@ class Puls {
         // other workers
     }
 
+    async clearCache(cachename) {
+        cachename = cachename || CACHE;
+        await caches.delete(cachename);
+    }
+
+    async refreshThoregonCache() {
+        delete this.cache;
+        await this.clearCache(CACHE);
+        await this.precache();
+    }
+
     async beat() {
         // todo:
         //  - open a cache for every handler (local, thoregon, gun, ipfs)
@@ -118,7 +132,7 @@ class Puls {
         if (entry.filename.endsWith('index.mjs')) {
             var redirlocation = location.substr(0, location.length-('index.mjs'.length+1))
             var redirect = Response.redirect(location, 301);    // 301: permanently moved, 302: temporarily moved
-            return this.cache.put(redirlocation, redirect);
+            this.cache.put(redirlocation, redirect);
         }
         var response = new Response(data, {
             headers: {
@@ -187,7 +201,7 @@ class Puls {
                 let pathname = onlyPath(request);
                 let response;
 
-                // first lookup non caching loaders (mainly for dev and realtime
+                // first lookup non caching loaders (mainly for dev and realtime)
                 response = await this.fetchNonCaching(request);
                 if (response) return response;
 
@@ -247,6 +261,7 @@ class Puls {
                 break;
             case 'loader':
                 await this.addLoader(data);
+                messageSource.postMessage({ cmd, "ack": true });
                 break;
             case 'worker':
                 break;
@@ -259,6 +274,24 @@ class Puls {
                 break;
             case 'reset':
                 this.reset();
+                break;
+            case 'clearCache':
+                await this.clearCache(data.cache);
+                messageSource.postMessage({ cmd, "ack": true });
+                break;
+            case 'refreshThoregonCache':
+                await this.refreshThoregonCache();
+                messageSource.postMessage({ cmd, "ack": true });
+                break;
+            case 'dev':
+                const isDev = !!data.state;
+                if (isDev) {
+                    this.resumeDevLoader();
+                } else {
+                    this.pauseDevLoader();
+                }
+                thoregon.isDev = isDev;
+                messageSource.postMessage({ cmd, "ack": true });
         }
     }
 
@@ -293,6 +326,24 @@ class Puls {
         await loader.start();
         // add to loaders if no error (throw) at start
         q[priority] = loader;
+    }
+
+    //
+    // Dev Loader
+    //
+
+    pauseDevLoader() {
+        const devloader = this.getDevLoader();
+        if (devloader) devloader.pause();
+    }
+
+    resumeDevLoader() {
+        const devloader = this.getDevLoader();
+        if (devloader) devloader.resume();
+    }
+
+    getDevLoader() {
+        return puls._noncachingloaders.find(loader => loader.constructor.name === 'TDevLoader');
     }
 }
 

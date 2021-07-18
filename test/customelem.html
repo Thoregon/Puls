@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Custom Element Test</title>
+</head>
+<body>
+
+<test-elem></test-elem>
+
+<script type="module">
+    class TestElem extends HTMLElement {
+        connectedCallback() {
+            let shadow      = this.attachShadow({ mode: 'open' });
+            let div = document.createElement('div');
+            div.innerHTML = "test";
+            div.style.border = "1px dotted";
+            shadow.appendChild(div);
+        }
+    }
+
+    customElements.define('test-elem', TestElem);
+</script>
+</body>
+</html>

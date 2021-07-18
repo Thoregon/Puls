@@ -41,28 +41,37 @@ const rnd = (l, c) => {
    yes, this can be faked by the peer but it does not matter because the peers can decide themselves what they are
    it is not of interest for the loader
  */
+const url = new URL(document.location.href);
+const devparam = url.searchParams.get('isDev');
+const isDev = devparam ? devparam === 'true' || devparam === '1' : window.location.hostname === 'localhost';
 
 /*
  * define a global for 'thoregon' beside the 'universe'
  */
 const thoregon = {};
+
 // *** some test methods
 Object.defineProperties(thoregon, {
-    'ui':           { value: true,       configurable: false, enumerable: true, writable: false},
-    'isBrowser' :   { value: true,       configurable: false, enumerable: true, writable: false },
-    'isReliant' :   { value: true,       configurable: false, enumerable: true, writable: false },
-    'isNode' :      { value: false,      configurable: false, enumerable: true, writable: false },
-    'isSovereign' : { value: false,      configurable: false, enumerable: true, writable: false },
-    'nature' :      { value: 'reliant',  configurable: false, enumerable: true, writable: false },
-    'density' :     { value: 'rich',     configurable: false, enumerable: true, writable: false },
-    'embedded':     { value: false,      configurable: false, enumerable: true, writable: false },
+    'ui'         : { value: true, configurable: false, enumerable: true, writable: false },
+    'isBrowser'  : { value: true, configurable: false, enumerable: true, writable: false },
+    'isReliant'  : { value: true, configurable: false, enumerable: true, writable: false },
+    'isNode'     : { value: false, configurable: false, enumerable: true, writable: false },
+    'isSovereign': { value: false, configurable: false, enumerable: true, writable: false },
+    'nature'     : { value: 'reliant', configurable: false, enumerable: true, writable: false },
+    'density'    : { value: 'rich', configurable: false, enumerable: true, writable: false },
+    'embedded'   : { value: false, configurable: false, enumerable: true, writable: false },
     // todo [OPEN]: autoselect other themes like iOS, get user selected theme from 'localStorage'
-    'uitheme' :     { value: 'material', configurable: false, enumerable: true, writable: false },
-    'isDev'       : { value: (window.location.hostname === 'localhost'), configurable: false, enumerable: true, writable: false },
+    'uitheme'    : { value: 'material', configurable: false, enumerable: true, writable: false },
+    'isDev'      : { value: isDev, configurable: false, enumerable: true, writable: false },
+    'birth'      : { value: Date.now(), configurable: false, enumerable: true, writable: false },
+    'since'      : { get: () => Date.now() - thoregon.birth, configurable: false, enumerable: true },
+    'checkpoint' : { value: (msg) => console.log(msg, Date.now() - thoregon.birth), configurable: false, enumerable: true, writable: false },
 });
 
 /*
  * check if loaded embedded in another site
+ * e.g. via a widget hatch
+ * may need
  */
 
 let m = import.meta;
@@ -88,10 +97,14 @@ const properties = {
 // if missing define 'globalThis'
 if (!window.globalThis) properties.globalThis = { value: window, configurable: false, enumerable: true, writable: false};
 
+const puls = {};
+
 // define globals
 Object.defineProperties(window, properties);
 
-const SERVICEWORKERREQUESTTIMEOUT = 1000;
+// can be changed by setting: thoregon.swtimeout = n
+// if thoregon.swtimeout <= 0 not timeout is used
+const SERVICEWORKERREQUESTTIMEOUT = 2500;
 
 export default class ProtoUniverse {
 
@@ -100,6 +113,7 @@ export default class ProtoUniverse {
     }
 
     async inflate() {
+        thoregon.checkpoint("§§ protouniverse inflate");
         let wasinstalled = true;
         try {
             // install service worker with the IPFS peer
@@ -114,20 +128,41 @@ export default class ProtoUniverse {
             // todo: check if 'serviceworker.skipWaiting()' is sufficient or the page needs a reload on first install
             // window.location.reload();
         } else {
+            // setup the communication interface to the service worker
+            this.definePulsInterface();
+            // set development mode
+            await puls.dev(isDev);
+
             // establish the IPFS loader
             // await this.initWorkers();
 
             // import basic THORE͛GON components
-            let letThereBeLight = (await import('/evolux.universe')).default;
+            thoregon.checkpoint("§§ protouniverse inflate 4");
+            let letThereBeLight = (await import('/evolux.universe/lib/reliant/letThereBeLight.mjs')).default;
+            thoregon.checkpoint("§§ protouniverse inflate 5");
             // and boot
             let universe = await letThereBeLight();
+
+            thoregon.checkpoint("§§ start delta");
+
             let id = universe.random();     // tmp id for this instance (window)
-            universe.sw = {
-                postMessage: this.serviceWorkerPost,
-                reset      : () => this.serviceWorkerPost({ cmd: 'reset' }),
-                state      : async () => await this.serviceWorkerRequest({ cmd: 'state' })
-            }
+            universe.puls = puls;
         }
+    }
+
+    definePulsInterface() {
+        //
+        // define a communication channel to puls
+        // todo: must be hidden for other loaded components
+        //
+        Object.assign(puls, {
+            postMessage    : this.serviceWorkerPost,
+            reset          : async () => await this.serviceWorkerRequest({ cmd: 'reset' }),
+            clear          : async (cache) => await this.serviceWorkerRequest({ cmd: 'clearCache', cache }),
+            refreshThoregon: async () => await this.serviceWorkerRequest({ cmd: 'refreshThoregonCache' }),
+            state          : async () => await this.serviceWorkerRequest({ cmd: 'state' }),
+            dev            : async (state) => await this.serviceWorkerRequest({ cmd: 'dev', state }),
+        });
     }
 
     async installServiceWorker(opts) {
@@ -168,6 +203,10 @@ export default class ProtoUniverse {
         });
     }
 
+    /**
+     * send a request to the service worker
+     * return Promise with the response
+     */
     /*async*/ serviceWorkerRequest(msg) {
         return new Promise(((resolve, reject) => {
             let handlers = this._requestQ[msg.cmd];
@@ -175,7 +214,8 @@ export default class ProtoUniverse {
             if (!handlers) {
                 handlers = [];
                 this._requestQ[msg.cmd] = handlers;
-                if (!thoregon.isDev) {  // no timeout during developing
+                const timeout = this.getSWTimeout();
+                if (timeout > 0) {
                     // only the first request for the same command needs a timeout
                     watchdog = setTimeout(() => {
                         let handlers = this._requestQ[msg.cmd];
@@ -183,12 +223,21 @@ export default class ProtoUniverse {
                         if (handlers) handlers.forEach(({ reject }) => {
                             reject(new Error("Requets timeout"));
                         });
-                    }, SERVICEWORKERREQUESTTIMEOUT);
+                    }, timeout);
                 }
             }
             handlers.push({ resolve, reject, watchdog });
             registration.active.postMessage(msg);
         }));
+    }
+
+    getSWTimeout() {
+        // first check is it is set by developer
+        if (thoregon.swtimeout != undefined) return thoregon.swtimeout <= 0 ? -1 : thoregon.swtimeout;
+        // in dev mode no timeout (for debugging)
+        if (thoregon.isDev) return -1;
+        // in all other cases use default timeout
+        return SERVICEWORKERREQUESTTIMEOUT;
     }
 
     serviceWorkerPost(msg, transfer) {
@@ -221,13 +270,14 @@ export default class ProtoUniverse {
 
     async initMatterWorker() {
         let res = await this.serviceWorkerRequest({ cmd: 'exists', name: 'matter' });
-        if (res.exists) return;     // ipfs loader is runniing
+        if (res.exists) return;     // matter loader is runniing
     }
 }
 
 (async () => {
     // console.log('** PULS inflate universe');
-    await new ProtoUniverse().inflate();
+    const protouniverse = new ProtoUniverse();
+    await protouniverse.inflate();
     // console.log('** PULS beats');
 })();
 
