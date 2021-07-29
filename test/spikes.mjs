@@ -23,9 +23,16 @@ import WorkerProvider from "/thoregon.crystalline/lib/providers/workerprovider.m
         result = await srv.twoParam(true, '$');
         console.log("service:", result);
 
-        srv.subscribe('change', (evt) => {
+
+        srv.onchange = (evt) => {
             console.log(evt);
-        });
+        };
+
+        /*
+            srv.subscribe('change', (evt) => {
+                console.log(evt);
+            });
+        */
 
         let a = await srv.a;
         console.log("service a:", a);
@@ -34,6 +41,8 @@ import WorkerProvider from "/thoregon.crystalline/lib/providers/workerprovider.m
         srv.b = 'X';
         b     = await srv.b;
         console.log("2 service b:", b);
+
+        await srv.forceTimeout();
     } catch (e) {
         console.log(">> Error", e);
     }
