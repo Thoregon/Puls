@@ -12,6 +12,7 @@
  * @licence: MIT
  * @see: {@link https://github.com/Thoregon}
  */
+// import Spike from "./lib/spike.mjs";
 
 // console.log('## genesis.mjs START');
 
@@ -278,6 +279,7 @@ export default class ProtoUniverse {
     // console.log('** PULS inflate universe');
     const protouniverse = new ProtoUniverse();
     await protouniverse.inflate();
+    // new Spike().doit();
     // console.log('** PULS beats');
 })();
 
