@@ -148,6 +148,7 @@ export default class ProtoUniverse {
 
             let id = universe.random();     // tmp id for this instance (window)
             universe.puls = puls;
+            window.puls = puls;
         }
     }
 
@@ -157,12 +158,15 @@ export default class ProtoUniverse {
         // todo: must be hidden for other loaded components
         //
         Object.assign(puls, {
-            postMessage    : this.serviceWorkerPost,
-            reset          : async () => await this.serviceWorkerRequest({ cmd: 'reset' }),
-            clear          : async (cache) => await this.serviceWorkerRequest({ cmd: 'clearCache', cache }),
-            refreshThoregon: async () => await this.serviceWorkerRequest({ cmd: 'refreshThoregonCache' }),
-            state          : async () => await this.serviceWorkerRequest({ cmd: 'state' }),
-            dev            : async (state) => await this.serviceWorkerRequest({ cmd: 'dev', state }),
+            serviceWorkerRequest: async (...args) => await this.serviceWorkerRequest(...args),
+            reset               : async () => await this.serviceWorkerRequest({ cmd: 'reset' }),
+            clear               : async (cache) => await this.serviceWorkerRequest({ cmd: 'clearCache', cache }),
+            state               : async () => await this.serviceWorkerRequest({ cmd: 'state' }),
+            dev                 : async (state) => await this.serviceWorkerRequest({ cmd: 'dev', state }),
+            refreshThoregon     : async (refreshUI = true) => {
+                await this.serviceWorkerRequest({ cmd: 'refreshThoregonCache' });
+                if (refreshUI) window.location.reload();
+            },
         });
     }
 
@@ -241,10 +245,6 @@ export default class ProtoUniverse {
         return SERVICEWORKERREQUESTTIMEOUT;
     }
 
-    serviceWorkerPost(msg, transfer) {
-        registration.active.postMessage(msg, transfer);
-    }
-
     // todo [REFACTOR]: move to universe.config
     async initWorkers() {
         await this.initIpfsLoader();
@@ -262,16 +262,20 @@ export default class ProtoUniverse {
 
     async initIpfsLoader() {
         let res = await this.serviceWorkerRequest({ cmd: 'exists', name: 'ipfs' });
-        if (res.exists) return;     // ipfs loader is runniing
+        if (res.exists) return;     // ipfs loader is running
         var sworker = new SharedWorker('/evolux.matter/lib/loader/ipfsloader.mjs', { name: 'IPFS loader', type: 'module' });
         let port = sworker.port;
-        // port.start();
-        this.serviceWorkerPost({ cmd: 'loader', name:'ipfs', kind: 'ipfs', cache: false, port }, [port]);
+        port.start();
+        return await this.serviceWorkerRequest({ cmd: 'loader', name:'ipfs', kind: 'ipfs', cache: treu, port }, [port]);
     }
 
     async initMatterWorker() {
         let res = await this.serviceWorkerRequest({ cmd: 'exists', name: 'matter' });
-        if (res.exists) return;     // matter loader is runniing
+        if (res.exists) return;     // matter loader is running
+        // var sworker = new SharedWorker('/evolux.matter/lib/loader/matterloader.mjs', { name: 'Matter loader', type: 'module' });
+        // let port = sworker.port;
+        // port.start();
+        // return await this.serviceWorkerRequest({ cmd: 'loader', name:'matter', kind: 'matter', cache: false, port }, [port]);
     }
 }
 
