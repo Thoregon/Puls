@@ -9,6 +9,9 @@
 import ServiceFacade  from "/thoregon.crystalline/lib/servicefacade.mjs";
 import WorkerProvider from "/thoregon.crystalline/lib/providers/workerprovider.mjs";
 
+import ConsoleLogger from "/thoregon.crystalline/lib/consolelogger.mjs";
+thoregon.archetimlogger = new ConsoleLogger();
+
 (async () => {
 
     try {
