@@ -6,7 +6,7 @@
  * @see: {@link https://github.com/Thoregon}
  */
 
-import ServiceFacade  from "/thoregon.crystalline/lib/servicefacade.mjs";
+import Facade         from "/thoregon.crystalline/lib/facade.mjs";
 import WorkerProvider from "/thoregon.crystalline/lib/providers/workerprovider.mjs";
 
 import ConsoleLogger from "/thoregon.crystalline/lib/consolelogger.mjs";
@@ -15,7 +15,7 @@ thoregon.archetimlogger = new ConsoleLogger();
 (async () => {
 
     try {
-        const srv = await ServiceFacade.use(await WorkerProvider.from('/thoregon.crystalline/test/services/simplejs.mjs'));
+        const srv = await Facade.use(await WorkerProvider.from('/thoregon.crystalline/test/services/simplejs.mjs'));
 
         let result = await srv.doit();
         console.log("service:", result);
