@@ -233,6 +233,7 @@ class Puls {
         i = i || 0;
         if (this._noncachingloaders.length <= i) return;
         let loader = this._noncachingloaders[i];
+        if (!loader) return this.fetchNonCaching(request, i+1);
         let response = await loader.fetch(request);
         return response || this.fetchNonCaching(request, i+1);
     }
@@ -241,6 +242,7 @@ class Puls {
         i = i || 0;
         if (this._cachingloaders.length <= i) return;
         let loader = this._cachingloaders[i];
+        if (!loader) return this.fetchNonCaching(request, i+1);
         let response = await loader.fetch(request);
         return response || this.fetchCaching(request, i+1);
     }
@@ -355,6 +357,6 @@ self.puls = new Puls();
 importScripts('./lib/loaders/loader.js')
 importScripts('./tdev/tdevloader.js');
 importScripts('./ipfs/ipfsloader.js');
-importScripts('./gun/matterloader.js');
+// importScripts('./gun/matterloader.js'); -> moved to a shared worker
 // importScripts('./lib/loaders/msgportloader.js');
 // importScripts('./gun/gunloader.js');

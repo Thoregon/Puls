@@ -8,6 +8,10 @@ import Controller, { ComponentsWatcher }    from '/evolux.dyncomponents';
 
 import { tservices, mythoregon }            from '/evolux.universe';
 
+/**
+ * Globals available in universe
+ */
+
 export const gunpeers =    ['https://matter.thoregon.io:8765/gun'];
 
 // todo: move to seperate config e.g. 'tru4d.config.mjs'
@@ -15,7 +19,16 @@ export const responsibilities   = [
     'thoregon.app'
 ];
 
+//
+// define app if no reference for this distribution
+//
 export const defaultapp = 'thatsme.app';
+
+//
+// find the universe for this distribution
+// the strangeness is a basic reference to be used as 'pepper' for all PoW's
+//
+export const strangeness = 'bwhOilJRd73uyFUzeKfJ13604fJdwKTy';
 
 const thoregonsystem = async (universe) => {
     const services              = universe.services;
@@ -99,6 +112,12 @@ const thoregonsystem = async (universe) => {
     /*
      * Thoregon Components
      */
+    const archetim =  ComponentDescriptor({
+          id:             'archetim',
+          displayName:    'universe wide graph DB',
+          category:       'universe',
+          href:           '/thoregon.archetim',
+      });
     const identity  = ComponentDescriptor({
           id:             'identity',
           displayName:    'thoregon distributed identites',
@@ -140,6 +159,10 @@ const thoregonsystem = async (universe) => {
                                               href:           '/thoregon.truCloud',
                                           });
 
+    // install 'archetim'. provides universe wide persistence
+    await components.install(archetim);
+    await components.resolve(archetim.id);
+    await components.start(archetim.id);
     // install 'dynlayer'. provides an infrastructure for all other components
     /*
         await components.install(dynlayers);
@@ -170,6 +193,8 @@ const thoregonsystem = async (universe) => {
     // await components.install(karte);
     // await components.resolve(karte.id);
     // await components.start(karte.id);
+
+
 }
 
 universe.atDawn(async universe => {
@@ -181,7 +206,7 @@ universe.atDawn(async universe => {
     await thoregonsystem(universe);
 
     // now install all other components
-    componentController.addPlugin(ComponentsWatcher.watch(componentLocation));
+    // componentController.addPlugin(ComponentsWatcher.watch(componentLocation));
 });
 
 universe.atDusk(async universe => {

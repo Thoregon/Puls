@@ -147,8 +147,10 @@ export default class ProtoUniverse {
             thoregon.checkpoint("§§ start delta");
 
             let id = universe.random();     // tmp id for this instance (window)
-            universe.puls = puls;
-            window.puls = puls;
+
+            // add puls as global
+            universe.puls = Object.freeze(puls);
+            window.puls   = universe.puls;
         }
     }
 
