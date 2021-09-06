@@ -149,6 +149,7 @@ class Puls {
     // todo [REFACTOR]: this is a primitive and simple mime type matching. exchange by more sophisticated
     getContentType(filename) {
         if (!filename) return 'text/plain';
+        if (filename === '/') return 'text/html';   // todo [REFACTOR]: implement better check if it is the entry point (thoregon.html)
         var tokens = filename.split('.');
         var extension = tokens[tokens.length - 1];
         return contentTypesByExtension[extension] || 'text/plain';

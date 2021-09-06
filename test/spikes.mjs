@@ -10,7 +10,12 @@ import SEA from '/evolux.everblack/lib/crypto/sea.mjs';
 
 try {
     let keypairs = await SEA.pair();
-    console.log(keypairs);
+    let others   = await SEA.pair();
+    // console.log(keypairs);
+
+    let secret  = await SEA.secret(others.epub, keypairs);
+    let secret2 = await SEA.secret(keypairs.epub, others);
+    console.log(secret == secret2 ? "EQUAL" : "NOT EQUAL");
 
 /*
     let encrypted = await SEA.encryptWithPub("Hello THOREGON", keypairs);
@@ -19,15 +24,25 @@ try {
     let decrypted = await SEA.decryptWithPriv(encrypted, keypairs);
     console.log(decrypted);
 */
+/*
+    let salt = await SEA.rndstr(9);
 
-    let work = await SEA.work("aarerberberbrtn");
+    let work = await SEA.work("aarerberberbrtn", salt);
     console.log(work);
 
-    let encrypted = await SEA.encrypt("Hello THOREGON", work);
+    let work2 = await SEA.work("aarerberberbrtn", salt);
+    console.log(work == work2 ? "EQUAL" : "NOT EQUAL");
+*/
+/*
+    // let key = work;
+    let key = secret;
+
+    let encrypted = await SEA.encrypt("Hello THOREGON", key);
     console.log(encrypted);
 
-    let decrypted = await SEA.decrypt(encrypted, work);
+    let decrypted = await SEA.decrypt(encrypted, key);
     console.log(decrypted);
+*/
 } catch (e) {
     console.log(e);
 }
