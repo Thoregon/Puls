@@ -5,12 +5,23 @@
  * @licence: MIT
  * @see: {@link https://github.com/Thoregon}
  */
+/*
+import Facade         from "/thoregon.crystalline/lib/facade.mjs";
+import WorkerProvider from "/thoregon.crystalline/lib/providers/workerprovider.mjs";
 
-import Facade from "/thoregon.crystalline/lib/facade.mjs";
+thoregon.archetimlogger = new ConsoleLogger();
+try {
+    const SEA = await Facade.use(await WorkerProvider.from('/evolux.everblack/lib/crypto/sea.mjs'));
+
+    let keypairs = await SEA.pair();
+    let others   = await SEA.pair();
+    console.log(keypairs);
+} catch (e) {
+    console.log(">> Error", e);
+}*/
 
 
-
-import SEA from '/evolux.everblack/lib/crypto/sea.mjs';
+import SEA           from '/evolux.everblack/lib/crypto/sea.mjs';
 
 try {
     let keypairs = await SEA.pair();
@@ -65,6 +76,7 @@ try {
 } catch (e) {
     console.log(e);
 }
+
 
 /*
 
