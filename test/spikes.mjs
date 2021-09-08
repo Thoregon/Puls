@@ -6,6 +6,10 @@
  * @see: {@link https://github.com/Thoregon}
  */
 
+import Facade from "/thoregon.crystalline/lib/facade.mjs";
+
+
+
 import SEA from '/evolux.everblack/lib/crypto/sea.mjs';
 
 try {
@@ -13,36 +17,51 @@ try {
     let others   = await SEA.pair();
     // console.log(keypairs);
 
-    let secret  = await SEA.secret(others.epub, keypairs);
-    let secret2 = await SEA.secret(keypairs.epub, others);
-    console.log(secret == secret2 ? "EQUAL" : "NOT EQUAL");
+    console.log('\nECDSA sign/verify');
 
-/*
-    let encrypted = await SEA.encryptWithPub("Hello THOREGON", keypairs);
-    console.log(encrypted);
+    let obj = { name:' Susi' };
+    let signed = await SEA.sign(obj, keypairs);
 
-    let decrypted = await SEA.decryptWithPriv(encrypted, keypairs);
-    console.log(decrypted);
-*/
-/*
+    // pass only the public key as this will be true in real life
+    let verified = await SEA.verify(signed, keypairs.spub);
+
+    console.log('Sig verification:', verified ? verified.name === obj.name ? 'VALID' : '???' : 'INVALID');
+
+    console.log('\nRSA Asymmeric Encryption');
+
+    let encrypted = await SEA.encryptPub("Hello THOREGON", keypairs);
+    console.log('Encrypt Pub', encrypted);
+
+    let decrypted = await SEA.decryptPriv(encrypted, keypairs);
+    console.log('Decrypt Priv', decrypted);
+
     let salt = await SEA.rndstr(9);
+
+    console.log('\nPBKDF2 Work');
 
     let work = await SEA.work("aarerberberbrtn", salt);
     console.log(work);
 
     let work2 = await SEA.work("aarerberberbrtn", salt);
-    console.log(work == work2 ? "EQUAL" : "NOT EQUAL");
-*/
-/*
+    console.log('Work', work == work2 ? "EQUAL" : "NOT EQUAL");
+
+    console.log('\nECDH Derive Secret Key');
+
+    let secret  = await SEA.secret(others.epub, keypairs);
+    let secret2 = await SEA.secret(keypairs.epub, others);
+    console.log('Secret', secret == secret2 ? "EQUAL" : "NOT EQUAL");
+
     // let key = work;
     let key = secret;
 
-    let encrypted = await SEA.encrypt("Hello THOREGON", key);
-    console.log(encrypted);
+    console.log('\nAES Symmetric Encryption');
 
-    let decrypted = await SEA.decrypt(encrypted, key);
-    console.log(decrypted);
-*/
+    /*let*/ encrypted = await SEA.encrypt("Hello THOREGON", key);
+    console.log("Encrypt", encrypted);
+
+    key = secret2;
+    /*let*/ decrypted = await SEA.decrypt(encrypted, key);
+    console.log("Decrypt", decrypted);
 } catch (e) {
     console.log(e);
 }
