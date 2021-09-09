@@ -46,6 +46,8 @@ const url = new URL(document.location.href);
 const devparam = url.searchParams.get('isDev');
 const isDev = devparam ? devparam === 'true' || devparam === '1' : window.location.hostname === 'localhost';
 
+let protouniverse;
+
 /*
  * define a global for 'thoregon' beside the 'universe'
  */
@@ -53,20 +55,21 @@ const thoregon = {};
 
 // *** some test methods
 Object.defineProperties(thoregon, {
-    'ui'         : { value: true, configurable: false, enumerable: true, writable: false },
-    'isBrowser'  : { value: true, configurable: false, enumerable: true, writable: false },
-    'isReliant'  : { value: true, configurable: false, enumerable: true, writable: false },
-    'isNode'     : { value: false, configurable: false, enumerable: true, writable: false },
-    'isSovereign': { value: false, configurable: false, enumerable: true, writable: false },
-    'nature'     : { value: 'reliant', configurable: false, enumerable: true, writable: false },
-    'density'    : { value: 'rich', configurable: false, enumerable: true, writable: false },
-    'embedded'   : { value: false, configurable: false, enumerable: true, writable: false },
+    'ui'               : { value: true, configurable: false, enumerable: true, writable: false },
+    'isBrowser'        : { value: true, configurable: false, enumerable: true, writable: false },
+    'isReliant'        : { value: true, configurable: false, enumerable: true, writable: false },
+    'isNode'           : { value: false, configurable: false, enumerable: true, writable: false },
+    'isSovereign'      : { value: false, configurable: false, enumerable: true, writable: false },
+    'nature'           : { value: 'reliant', configurable: false, enumerable: true, writable: false },
+    'density'          : { value: 'rich', configurable: false, enumerable: true, writable: false },
+    'embedded'         : { value: false, configurable: false, enumerable: true, writable: false },
     // todo [OPEN]: autoselect other themes like iOS, get user selected theme from 'localStorage'
-    'uitheme'    : { value: 'material', configurable: false, enumerable: true, writable: false },
-    'isDev'      : { value: isDev, configurable: false, enumerable: true, writable: false },
-    'birth'      : { value: Date.now(), configurable: false, enumerable: true, writable: false },
-    'since'      : { get: () => Date.now() - thoregon.birth, configurable: false, enumerable: true },
-    'checkpoint' : { value: (msg) => console.log(msg, Date.now() - thoregon.birth), configurable: false, enumerable: true, writable: false },
+    'uitheme'          : { value: 'material', configurable: false, enumerable: true, writable: false },
+    'isDev'            : { value: isDev, configurable: false, enumerable: true, writable: false },
+    'birth'            : { value: Date.now(), configurable: false, enumerable: true, writable: false },
+    'since'            : { get: () => Date.now() - thoregon.birth, configurable: false, enumerable: true },
+    'checkpoint'       : { value: (msg) => console.log(msg, Date.now() - thoregon.birth), configurable: false, enumerable: true, writable: false },
+    'activateFirewalls': { value: async () => await protouniverse?.activateFirewalls(), configurable: false, enumerable : true, writable: false },
 });
 
 /*
@@ -279,11 +282,15 @@ export default class ProtoUniverse {
         // port.start();
         // return await this.serviceWorkerRequest({ cmd: 'loader', name:'matter', kind: 'matter', cache: false, port }, [port]);
     }
+
+    async activateFirewalls() {
+        console.log("§§ protouniverse activate firewalls");
+    }
 }
 
 (async () => {
     // console.log('** PULS inflate universe');
-    const protouniverse = new ProtoUniverse();
+    protouniverse = new ProtoUniverse();
     await protouniverse.inflate();
     // new Spike().doit();
     // console.log('** PULS beats');

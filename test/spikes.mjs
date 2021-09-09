@@ -5,22 +5,30 @@
  * @licence: MIT
  * @see: {@link https://github.com/Thoregon}
  */
-/*
+
 import Facade         from "/thoregon.crystalline/lib/facade.mjs";
 import WorkerProvider from "/thoregon.crystalline/lib/providers/workerprovider.mjs";
+import ConsoleLogger  from "/thoregon.crystalline/lib/consolelogger.mjs";
 
 thoregon.archetimlogger = new ConsoleLogger();
-try {
-    const SEA = await Facade.use(await WorkerProvider.from('/evolux.everblack/lib/crypto/sea.mjs'));
 
-    let keypairs = await SEA.pair();
-    let others   = await SEA.pair();
-    console.log(keypairs);
+try {
+    const identity = await Facade.use(await WorkerProvider.from('/thoregon.identity/lib/identityservice.mjs'));
+
+    // let is = await identity.is('lucky');
+    // console.log(is);
+
+    // let created = await identity.create("lucky", "1passwort");
+    // console.log("created", created);
+
+    let signedon = await identity.signon("lucky", "1passwort");
+    console.log("signedon", signedon);
 } catch (e) {
     console.log(">> Error", e);
-}*/
+}
 
 
+/*
 import SEA           from '/evolux.everblack/lib/crypto/sea.mjs';
 
 try {
@@ -67,15 +75,16 @@ try {
 
     console.log('\nAES Symmetric Encryption');
 
-    /*let*/ encrypted = await SEA.encrypt("Hello THOREGON", key);
+    /!*let*!/ encrypted = await SEA.encrypt("Hello THOREGON", key);
     console.log("Encrypt", encrypted);
 
     key = secret2;
-    /*let*/ decrypted = await SEA.decrypt(encrypted, key);
+    /!*let*!/ decrypted = await SEA.decrypt(encrypted, key);
     console.log("Decrypt", decrypted);
 } catch (e) {
     console.log(e);
 }
+*/
 
 
 /*
