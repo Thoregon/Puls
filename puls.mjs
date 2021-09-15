@@ -196,9 +196,9 @@ class Puls {
             })());
             return;
         }
-        if (!this.isPermitted(request.url)) throw Error(`location not allowed (same origin) -> ${request.url}`);
-        try {
+        // try {
             await event.respondWith((async () => {
+                if (!this.isPermitted(request.url)) throw Error(`location not allowed (same origin) -> ${request.url}`);
                 let pathname = onlyPath(request);
                 let response;
 
@@ -224,10 +224,12 @@ class Puls {
                 // await this.cache.put(pathname, response.clone());
                 return response;
             })());
+/*
         } catch (e) {
             console.log("Fetch error:", request.url, e);
             throw Error("Can't fetch");
         }
+*/
     }
 
     async fetchNonCaching(request, i) {
