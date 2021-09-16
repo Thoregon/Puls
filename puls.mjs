@@ -186,17 +186,17 @@ class Puls {
      *  - put also fetch from current location to cache
      */
     async fetch(event) {
-        if (!this.cache) await this.beat();
-        let request = event.request;
-        // enforce same origin in any case!
-        let symlink = resolveSymlink(request.url);      // todo: check method etc. if this request can really be redirected to a 'local' resource
-        if (symlink) {
-            await event.respondWith((async () => {
-                return Response.redirect(symlink, 301);
-            })());
-            return;
-        }
-        // try {
+        try {
+            if (!this.cache) await this.beat();
+            let request = event.request;
+            // enforce same origin in any case!
+            let symlink = resolveSymlink(request.url);      // todo: check method etc. if this request can really be redirected to a 'local' resource
+            if (symlink) {
+                await event.respondWith((async () => {
+                    return Response.redirect(symlink, 301);
+                })());
+                return;
+            }
             await event.respondWith((async () => {
                 if (!this.isPermitted(request.url)) throw Error(`location not allowed (same origin) -> ${request.url}`);
                 let pathname = onlyPath(request);
@@ -224,12 +224,10 @@ class Puls {
                 // await this.cache.put(pathname, response.clone());
                 return response;
             })());
-/*
         } catch (e) {
             console.log("Fetch error:", request.url, e);
-            throw Error("Can't fetch");
+            // throw Error("Can't fetch");
         }
-*/
     }
 
     async fetchNonCaching(request, i) {
