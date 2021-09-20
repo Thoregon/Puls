@@ -160,9 +160,11 @@ const thoregonsystem = async (universe) => {
                                           });
 
     // install 'archetim'. provides universe wide persistence
+/*
     await components.install(archetim);
     await components.resolve(archetim.id);
     await components.start(archetim.id);
+*/
     // install 'dynlayer'. provides an infrastructure for all other components
     /*
         await components.install(dynlayers);
