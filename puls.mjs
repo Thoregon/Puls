@@ -225,7 +225,7 @@ class Puls {
                 return response;
             })());
         } catch (e) {
-            console.log("Fetch error:", request.url, e);
+            console.log("Fetch error:", event.request.url, e);
             // throw Error("Can't fetch");
         }
     }
