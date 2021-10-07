@@ -1,5 +1,10 @@
 /**
  *
+ * todo [OPEN]:
+ *  - analyse directories (entries) method HEAD
+ *  - analyse full module with the {rootdir} with '!' at the end
+ *  - @see --> tdevloader.mjs
+ *  - @see --> fsmapper.mjs (in tdev server)
  *
  * @author: Bernhard Lukassen
  * @licence: MIT

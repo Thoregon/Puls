@@ -11,6 +11,8 @@
 
 const wsroot = `ws:${location.host}`;
 
+const isGET = (request) => request.method === 'GET';
+
 class TDevLoader extends Loader {
 
     /*
@@ -45,7 +47,7 @@ class TDevLoader extends Loader {
         if (head.error) return;
         // redirect to index if exists
         if (head.type !== 'file') {
-            if (head.hasindex) {
+            if (head.hasindex && isGET(request)) {
                 return Response.redirect(pathjoin(pathname,'index.mjs'), 302);    // 301: permanently moved, 302: temporarily moved
             } else if (head.type === 'dir') {
                 let meta = { headers: {

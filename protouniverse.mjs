@@ -66,6 +66,7 @@ Object.defineProperties(thoregon, {
     // todo [OPEN]: autoselect other themes like iOS, get user selected theme from 'localStorage'
     'uitheme'          : { value: 'material', configurable: false, enumerable: true, writable: false },
     'isDev'            : { value: isDev, configurable: false, enumerable: true, writable: false },
+    'debug'            : { value: false, configurable: false, enumerable: true, writable: false },
     'birth'            : { value: Date.now(), configurable: false, enumerable: true, writable: false },
     'since'            : { get: () => Date.now() - thoregon.birth, configurable: false, enumerable: true },
     'checkpoint'       : { value: (msg) => console.log(msg, Date.now() - thoregon.birth), configurable: false, enumerable: true, writable: false },

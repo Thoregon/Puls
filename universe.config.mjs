@@ -32,8 +32,43 @@ export const STRANGENESS = 'bwhOilJRd73uyFUzeKfJ13604fJdwKTy';  // the strangene
 export const DORIFER = 'HriEr6DQKudGfFVphupRuTyxLGKgxNay';  // the soul (address) of the dorifer directory
 export const THOREGON_SPUB = '';
 
-
 const thoregonsystem = async (universe) => {
+    thoregon.checkpoint("§§ thoregonsystem install ");
+    const pubsub = (await import('/evolux.pubsub')).service;
+    await pubsub.install();
+    await pubsub.start();
+    thoregon.checkpoint("§§ thoregonsystem evolux.pubsub");
+    const everblack = (await import('/evolux.everblack')).service;
+    await everblack.install();
+    await everblack.start();
+    thoregon.checkpoint("§§ thoregonsystem evolux.everblack");
+    const aurora = (await import('/thoregon.aurora')).default;
+    await aurora.install();
+    await aurora.start();
+    thoregon.checkpoint("§§ thoregonsystem thoregon.aurora");
+    const gun = (await import('/terra.gun')).service;
+    await gun.install();
+    await gun.start();
+    thoregon.checkpoint("§§ thoregonsystem terra.gun");
+    const matter = (await import('/evolux.matter')).service;
+    await matter.install();
+    await matter.start();
+    thoregon.checkpoint("§§ thoregonsystem evolux.matter");
+    const archetim = (await import('/thoregon.archetim')).default;
+    await archetim.install();
+    await archetim.start();
+    thoregon.checkpoint("§§ thoregonsystem thoregon.archetim");
+    const identity = (await  import('/thoregon.identity')).default;
+    await identity.install();
+    await identity.start();
+    thoregon.checkpoint("§§ thoregonsystem thoregon.identity");
+    const truCloud = (await  import('/thoregon.truCloud')).default;
+    await truCloud.install();
+    await truCloud.start();
+    thoregon.checkpoint("§§ thoregonsystem thoregon.truCloud");
+}
+
+const _thoregonsystem = async (universe) => {
     const services              = universe.services;
     const components            = services.components;
     const ComponentDescriptor   = components.ComponentDescriptor;
@@ -104,9 +139,11 @@ const thoregonsystem = async (universe) => {
            href       : '/thoregon.aurora',
        });
 
+/*
     await components.install(UI);
     await components.resolve(UI.id);
     await components.start(UI.id);
+*/
 
     await components.install(Aurora);
     await components.resolve(Aurora.id);
