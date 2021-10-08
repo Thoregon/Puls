@@ -165,10 +165,12 @@ export default class ProtoUniverse {
         //
         Object.assign(puls, {
             serviceWorkerRequest: async (...args) => await this.serviceWorkerRequest(...args),
-            reset               : async () => await this.serviceWorkerRequest({ cmd: 'reset' }),
-            clear               : async (cache) => await this.serviceWorkerRequest({ cmd: 'clearCache', cache }),
-            state               : async () => await this.serviceWorkerRequest({ cmd: 'state' }),
-            dev                 : async (state) => await this.serviceWorkerRequest({ cmd: 'dev', state }),
+            reset               : async ()        => await this.serviceWorkerRequest({ cmd: 'reset' }),
+            clear               : async (cache)   => await this.serviceWorkerRequest({ cmd: 'clearCache', cache }),
+            state               : async ()        => await this.serviceWorkerRequest({ cmd: 'state' }),
+            dev                 : async (state)   => await this.serviceWorkerRequest({ cmd: 'dev', state }),
+            inCache             : async (path)    => await this.serviceWorkerRequest({ cmd: 'inCache', path }),
+            listCache           : async ()        => await this.serviceWorkerRequest({ cmd: 'listCache' }),
             refreshThoregon     : async (refreshUI = true) => {
                 await this.serviceWorkerRequest({ cmd: 'refreshThoregonCache' });
                 if (refreshUI) window.location.reload();

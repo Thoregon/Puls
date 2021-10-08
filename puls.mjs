@@ -286,6 +286,10 @@ class Puls {
                 await this.refreshThoregonCache();
                 messageSource.postMessage({ cmd, "ack": true });
                 break;
+            case 'inCache':
+                messageSource.postMessage({ cmd: "inChache", inChache: await this.inCache(data.path) });
+            case 'listCache':
+                messageSource.postMessage({ cmd: "listCache", chache: await this.listCache() });
             case 'dev':
                 const isDev = !!data.state;
                 if (isDev) {
@@ -296,6 +300,24 @@ class Puls {
                 thoregon.isDev = isDev;
                 messageSource.postMessage({ cmd, "ack": true });
         }
+    }
+
+    //
+    // chache
+    //
+
+    async inCache(path) {
+        path = path.startsWith('/') ? '' : '/' + path;
+        const res = await puls.cache.match(self.location.origin + path);
+        return !!res;
+    }
+
+    async listCache() {
+        const i = self.location.origin.length;
+        const entries = (await puls.cache.keys()).map(req => req.url.substr(i));
+        // seems that cache entries does not provide any header or other useful information
+        // const entries = (await puls.cache.keys()).map(req => {return { url: req.url.substr(i), contentType: req.headers.get('Content-Type'), redirected: req.redirected || false } });
+        return entries;
     }
 
     /*
