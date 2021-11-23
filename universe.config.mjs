@@ -213,10 +213,6 @@ const _thoregonsystem = async (universe) => {
         await components.resolve(dynlayers.id);
         await components.start(dynlayers.id);
     */
-    // install 'identity'. it is essential to have identities for DDDD available
-    await components.install(identity);
-    await components.resolve(identity.id);
-    await components.start(identity.id);
 
     // install 'heavymatter'. it is essential to store files and other big data
     // await components.install(heavymatter);
@@ -232,6 +228,11 @@ const _thoregonsystem = async (universe) => {
     await components.install(truCloud);
     await components.resolve(truCloud.id);
     await components.start(truCloud.id);
+
+    // install 'identity'. it is essential to have identities for DDDD available
+    await components.install(identity);
+    await components.resolve(identity.id);
+    await components.start(identity.id);
 
     // install 'KARTE'. it is essential to have name and discovery service for DDDD available
     // await components.install(karte);
@@ -253,7 +254,7 @@ const TESTIDENTITY = {
         "apub": "tky68xvxXVioJsMR5TYhcsYsXanJwYDtQK7lafGOW1_k53fdBCza0XNQgJhJruFuiLLSjABRcYBqI0cOjqDizjnzT6bu2MXnT_UuRxmNc7lD7Ukt1YVqKTjukXQFJTRP2_tTIqysn1tSC6OGtOkHcsga6J4OjWbSiW0UT1UGBNA5M-NeTPG6fGjBc2xJQ6EAU4btaCBOIJRqlGoBOhcsZueGpnV7gHahG_XC7ri8LBiEJ82azo5_EmjdIL3tcI-iV4c_9x3jBt_qDX-hBlh0V-nmCKbtG1B-lDOKfS4PYDxBSO7LVf3ynlgMMBqtAjAvOXVhgI-TJQ-cQ-6I0SlqfBQd1R9dP2rrcScIFphKSBKZYFysX7WQBRf90pkxYmm8aXioJ8bHxQtKt5N947vMDQfLxA2kxCi1Wy-Bi8moJLPtEfadavU53VG2vriNYiMyuZaSSf3HR_6PC4x9UdXO-5TqOtKh19a-RhCRT_cDFM0DZ_ZwA91txyR8-yhzzb0PpdPMGQkKeNTuSdXwZg5TrNR7w1iohfxE8hrmfUyIOMVdmdAMwq455r6y2TtqxZXvcWbxQQea5e6iLCou1BzorOJ1YsLq6PYkl0iRTBmLaMH2y3eTNRvZJd64uiD6F2EQF9Fi3rWeY4PB0TFgmOCA1BMLJN4js8EsECB_sc_MhoM"
     },
     salt: '0qmLV1600',
-    anchor: 'eXup3uod43ud0e600DFUyA85IjSkG248'
+    anchor: 'eXup3uod43ud0e600DFUyA85IjSkG249'
 };
 
 universe.atDawn(async universe => {
