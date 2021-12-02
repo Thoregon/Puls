@@ -118,7 +118,7 @@ const _thoregonsystem = async (universe) => {
     await components.resolve(everblack.id);
     await components.start(everblack.id);
 
-    // install 'matter' to have fast queries available
+    // install 'matter' to have native queries available
     await components.install(matter);
     await components.resolve(matter.id);
     await components.start(matter.id);
