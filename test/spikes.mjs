@@ -6,6 +6,9 @@
  * @see: {@link https://github.com/Thoregon}
  */
 
+import Query   from "/thoregon.truCloud/lib/query.mjs";
+import Channel from "/thatsme-application-broadcastgreen/lib/entities/channel.mjs";
+
 import Facade         from "/thoregon.crystalline/lib/facade.mjs";
 import WorkerProvider from "/thoregon.crystalline/lib/providers/workerprovider.mjs";
 import ConsoleLogger  from "/thoregon.crystalline/lib/consolelogger.mjs";
