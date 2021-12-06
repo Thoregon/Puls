@@ -63,6 +63,8 @@ const thoregonsystem = async (universe) => {
     const identity = (await  import('/thoregon.identity')).default;
     await identity.install();
     await identity.start();
+    // register credentials for testing
+    await universe.Identity.useIdentity(TESTIDENTITY);
     thoregon.checkpoint("§§ thoregonsystem thoregon.identity");
     const truCloud = (await  import('/thoregon.truCloud')).default;
     await truCloud.install();
@@ -269,7 +271,7 @@ universe.atDawn(async universe => {
     // componentController.addPlugin(ComponentsWatcher.watch(componentLocation));
 
     // register credentials for testing
-    await universe.Identity.useIdentity(TESTIDENTITY);
+    //await universe.Identity.useIdentity(TESTIDENTITY);
 });
 
 universe.atDusk(async universe => {
