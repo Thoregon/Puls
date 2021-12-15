@@ -40,11 +40,16 @@ const contentTypesByExtension = {   // todo: add more mime types
     'eot'  : 'application/vnd.ms-fontobject',
 };
 
+// todo [OPEN]:
+//  - permitted access to add allowed web requests
+//  - allow per method
 const ALLOWED_WEB_REQUESTS = [
     /^https:\/\/dns\.google\/.*/,
     /^https:\/\/cloudflare-dns\.com\/.*/,
     /^https:\/\/.*\.ipfs\.io\/.*/,
     /^https:\/\/cloudflare-ipfs\.com\/.*/,
+    /^https:\/\/.*\.thatsme\.plus\/.*/,
+    /^https:\/\/.*\.broadcast\.green\/.*/,
 ];
 
 const SYMLINKS = {

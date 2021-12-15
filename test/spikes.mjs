@@ -6,8 +6,10 @@
  * @see: {@link https://github.com/Thoregon}
  */
 
-import Query, { EMPTY_QUERY }   from "/thoregon.truCloud/lib/query.mjs";
-import Channel from "/thatsme-application-broadcastgreen/lib/entities/channel.mjs";
+import { TelegramSetup } from "/thatsme-module-message-provider/lib/providers/telegram.mjs";
+
+// import Query, { EMPTY_QUERY }   from "/thoregon.truCloud/lib/query.mjs";
+// import Channel from "/thatsme-application-broadcastgreen/lib/entities/channel.mjs";
 
 import Facade         from "/thoregon.crystalline/lib/facade.mjs";
 import WorkerProvider from "/thoregon.crystalline/lib/providers/workerprovider.mjs";
