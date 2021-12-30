@@ -50,6 +50,7 @@ const ALLOWED_WEB_REQUESTS = [
     /^https:\/\/cloudflare-ipfs\.com\/.*/,
     /^https:\/\/.*\.thatsme\.plus\/.*/,
     /^https:\/\/.*\.broadcast\.green\/.*/,
+    /^https:\/\/pioneersofchange-summit\.org\/.*/,
 ];
 
 const SYMLINKS = {
