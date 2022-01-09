@@ -4,9 +4,10 @@
  * @author: Bernhard Lukassen
  */
 
-import Controller, { ComponentsWatcher }    from '/evolux.dyncomponents';
+import Controller, { ComponentsWatcher } from '/evolux.dyncomponents';
+import { tservices, mythoregon }         from '/evolux.universe';
 
-import { tservices, mythoregon }            from '/evolux.universe';
+export { default as myagents }           from './agent_config.mjs';
 
 /**
  * Globals available in universe
