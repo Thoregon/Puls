@@ -6,7 +6,7 @@
  * @see: {@link https://github.com/Thoregon}
  */
 
-import { TelegramAppSetup } from "/thatsme-module-message-provider/lib/providers/telegram.mjs";
+// import { TelegramProvider } from "/thatsme-module-message-provider/lib/providers/telegramprovider.mjs";
 
 // import Query, { EMPTY_QUERY }   from "/thoregon.truCloud/lib/query.mjs";
 // import Channel from "/thatsme-application-broadcastgreen/lib/entities/channel.mjs";
