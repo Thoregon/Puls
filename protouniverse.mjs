@@ -238,6 +238,9 @@ export default class ProtoUniverse {
             // add puls as global
             universe.puls = Object.freeze(puls);
             window.puls   = universe.puls;
+
+            // now restart the app
+            // await dorifer.restartApp();
         }
     }
 
