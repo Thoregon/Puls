@@ -6,6 +6,109 @@
  * @see: {@link https://github.com/Thoregon}
  */
 
+/******************************************************************/
+/* autocomplete collection & directory                            */
+/******************************************************************/
+
+import { doAsync, timeout } from "/evolux.universe";
+import ThoregonEntity       from "/thoregon.archetim/lib/thoregonentity.mjs";
+import MetaClass            from "/thoregon.archetim/lib/metaclass/metaclass.mjs";
+import Collection           from "/thoregon.archetim/lib/collection.mjs";
+import Directory            from "/thoregon.archetim/lib/directory.mjs";
+
+class TestBOMeta extends MetaClass {
+
+    initiateInstance() {
+        this.name = "TestBO";
+
+        this.text("txt");
+        this.collection("col",  Collection, /*{ autocomplete: true }*/); // autocomplete default is true in this case
+        this.collection("dir",  Directory, /*{ autocomplete: true }*/); // autocomplete default is true in this case
+    }
+
+}
+
+class TestBO extends ThoregonEntity() {
+    constructor(props) {
+        super();
+        Object.assign(this, props);
+    }
+}
+
+TestBO.checkIn(import.meta, TestBOMeta);
+
+debugger;
+
+const refA = universe.random();
+
+const a = await TestBO.create({ text: 'A' }, { store: refA });
+const col = await a.col;
+col.add({ x: 'X' });
+
+debugger;
+
+const dir = await a.dir;
+dir.y = { y: 'y' };
+
+await timeout(1000);
+console.log(a);
+
+debugger;
+
+const a2 = await TestBO.from(refA);
+console.log(await a2.prop('dir.y'));
+console.log([...(await a2.col).propertyNames]);
+
+debugger;
+
+/******************************************************************/
+/* decorated instances                                            */
+/******************************************************************/
+/*
+
+import { doAsync, timeout } from "/evolux.universe";
+import ThoregonEntity       from "/thoregon.archetim/lib/thoregonentity.mjs";
+import MetaClass            from "/thoregon.archetim/lib/metaclass/metaclass.mjs";
+
+class TestBOMeta extends MetaClass {
+
+    initiateInstance() {
+        this.name = "TestBO";
+
+        this.text("a");
+        this.object("b");
+    }
+
+}
+
+class TestBO extends ThoregonEntity() {
+    constructor(props) {
+        super();
+        Object.assign(this, props);
+    }
+}
+
+TestBO.checkIn(import.meta, TestBOMeta);
+
+debugger;
+
+const refA = universe.random();
+
+const a = await TestBO.create({ a: 'A' }, { store: refA });
+const b = await TestBO.initiate({ b: 'B' });
+a.b = b;
+
+await timeout(2000);
+console.log(a);
+
+debugger;
+const a2 = await TestBO.from(refA);
+const b2 = await a2.b;
+console.log(b2);
+
+debugger;
+*/
+
 // import { TelegramProvider } from "/thatsme-module-message-provider/lib/providers/telegramprovider.mjs";
 
 // import Query, { EMPTY_QUERY }   from "/thoregon.truCloud/lib/query.mjs";
