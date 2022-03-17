@@ -6,7 +6,7 @@
  * @see: {@link https://github.com/Thoregon}
  */
 
-importScripts('./gun/gun.js', './gun/rindexed.js', './gun/sea.js');
+importScripts('./gun/gun.js', './gun/sea.js'/*, './gun/rindexed.js'*/);
 
 const LOADERURL  = /^\/matter\/.*/;
 const LOADERPATH = /^\/matter\/(.+)/;
@@ -15,7 +15,8 @@ const LOADERPATH = /^\/matter\/(.+)/;
 
     async doStart() {
         const peers = ['https://matter.thoregon.io:8765/gun'];
-        const opts  = { peers, localStorage: false, store: RindexedDB({}) };
+        // const opts  = { peers, localStorage: false, store: RindexedDB({}) };
+        const opts  = { peers };
         this.gun = Gun(opts);
         self.gun = this.gun;
         console.log("** Matter Loader: GUN started");
