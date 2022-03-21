@@ -7,12 +7,12 @@
  */
 
 import Facade           from "/thoregon.crystalline/lib/facade.mjs";
-import ThoregonConsumer from "/thoregon.crystalline/lib/providers/thoregonconsumer.mjs";
+import ThoregonConsumer from "/thoregon.crystalline/lib/consumers/thoregonconsumer.mjs";
 import DocumentLogger   from "/thoregon.crystalline/lib/documentlogger.mjs";
 
 import { doAsync, timeout } from "/evolux.universe";
 
-debugger;
+import TestEntity       from "/thoregon.crystalline/test/testentity.mjs";
 
 universe.qtest = {};
 const srvroot = "yPqTS97ESjGK5FV2rCDQqOoP30odvGKJ";
@@ -25,21 +25,31 @@ const log = (msg) => {
 
 thoregon.archetimlogger = new DocumentLogger('Producer', logelem);
 
-console.log('\nConsumer start\n');
+const ADR = 'EOocUoPqzpe5lqTySaAK4pf8ENZ7bRtn';
 
-const consumer = await Facade.use(await ThoregonConsumer.at(srvroot));
-universe.qtest.consumer = consumer;
+const $run = document.getElementById('run');
+$run.style.visibility = 'visible';
+$run.onclick = async () => {
+    console.log('\nConsumer start\n');
 
-consumer.subscribe('change', (evt) => {
-    console.log('Producer -> change', evt);
-});
+    const testEntity = await TestEntity.from(ADR) ?? await TestEntity.create({ text: 'test consumer' }, { store: ARD });
 
-console.log('Producer.echo()', await consumer.echo('wer ruft in den Wald'));
-console.log('Producer.name = ', await consumer.name);
+    const consumer = await Facade.use(await ThoregonConsumer.at(srvroot));
+    universe.qtest.consumer = consumer;
 
-consumer.name = 'Pwned';
+    consumer.subscribe('change', (evt) => {
+        console.log('Producer -> change', evt);
+    });
 
-await timeout(100);
-consumer.close();
+    consumer.with(testEntity);
 
-console.log('\nConsumer end');
+    // console.log('Producer.echo()', await consumer.echo('wer ruft in den Wald'));
+    // console.log('Producer.name = ', await consumer.name);
+    // consumer.name = 'Pwned';
+
+    await timeout(100);
+    consumer.close();
+
+    console.log('\nConsumer end');
+}
+

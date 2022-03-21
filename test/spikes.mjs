@@ -115,7 +115,7 @@ debugger;
 // import Channel from "/thatsme-application-broadcastgreen/lib/entities/channel.mjs";
 
 import Facade         from "/thoregon.crystalline/lib/facade.mjs";
-import WorkerProvider from "/thoregon.crystalline/lib/providers/workerprovider.mjs";
+import WorkerConsumer from "/thoregon.crystalline/lib/consumers/workerconsumer.mjs";
 import ConsoleLogger  from "/thoregon.crystalline/lib/consolelogger.mjs";
 import SEA            from '/evolux.everblack/lib/crypto/sea.mjs';
 
@@ -331,7 +331,7 @@ const KEYLEN   = 4096;
 /*
 
 import Facade         from "/thoregon.crystalline/lib/facade.mjs";
-import WorkerProvider from "/thoregon.crystalline/lib/providers/workerprovider.mjs";
+import WorkerConsumer from "/thoregon.crystalline/lib/consumers/workerconsumer.mjs";
 
 import ConsoleLogger from "/thoregon.crystalline/lib/consolelogger.mjs";
 thoregon.archetimlogger = new ConsoleLogger();
@@ -339,7 +339,7 @@ thoregon.archetimlogger = new ConsoleLogger();
 (async () => {
 
     try {
-        const srv = await Facade.use(await WorkerProvider.from('/thoregon.crystalline/test/services/simplejs.mjs'));
+        const srv = await Facade.use(await WorkerConsumer.from('/thoregon.crystalline/test/services/simplejs.mjs'));
 
         let result = await srv.doit();
         console.log("service:", result);
@@ -379,13 +379,13 @@ thoregon.archetimlogger = new ConsoleLogger();
 
 /*
 import ServiceFacade from "/thoregon.crystalline/lib/servicefacade.mjs";
-import JSProvider    from "/thoregon.crystalline/lib/providers/jsprovider.mjs";
+import JSConsumer    from "/thoregon.crystalline/lib/consumers/jsconsumer.mjs";
 import SimpleJS      from "/thoregon.crystalline/test/services/simplejs.mjs";
 
 
 (async () => {
     debugger;
-    const srv = await ServiceFacade.use(await JSProvider.with(new SimpleJS()));
+    const srv = await ServiceFacade.use(await JSConsumer.with(new SimpleJS()));
 
     let result = await srv.doit();
     console.log("service:", result);

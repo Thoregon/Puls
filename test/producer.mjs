@@ -6,8 +6,10 @@
  * @see: {@link https://github.com/Thoregon}
  */
 
-import ThoregonProducer from "/thoregon.crystalline/lib/services/thoregonproducer.mjs";
+import ThoregonProducer from "/thoregon.crystalline/lib/producers/thoregonproducer.mjs";
 import DocumentLogger   from "/thoregon.crystalline/lib/documentlogger.mjs";
+
+import TestEntity       from "/thoregon.crystalline/test/testentity.mjs";
 
 const logelem = document.getElementById('log');
 const log = (msg) => {
@@ -27,6 +29,10 @@ export default class Producer {
     echo(text) {
         /*console.*/log("Producer.echo()", text);
         return "Got: '" + text + "'";
+    }
+
+    with(entity) {
+        console.log("With Entity:", entity.text);
     }
 
 }
