@@ -17,35 +17,52 @@ import TestEntity       from "/thoregon.crystalline/test/testentity.mjs";
 universe.qtest = {};
 const srvroot = "yPqTS97ESjGK5FV2rCDQqOoP30odvGKJ";
 const logelem = document.getElementById('log');
+/*
 const log = (msg) => {
     const item = document.createElement('p');
     item.innerText = msg;
     logelem.appendChild(item);
 }
+*/
 
-thoregon.archetimlogger = new DocumentLogger('Producer', logelem);
+// *********************************
+class ProducerInterface {
 
-const ADR = 'EOocUoPqzpe5lqTySaAK4pf8ENZ7bRtn';
+    constructor() {
+        this.name = '';
+    }
+
+    echo(text) {}
+
+    with(entity) {}
+
+}
+// *********************************
+
+thoregon.archetimlogger = new DocumentLogger('Consumer', logelem);
+
+const SOUL = 'EOocUoPqzpe5lqTySaAK4pf8ENZ7bRtn';
 
 const $run = document.getElementById('run');
 $run.style.visibility = 'visible';
 $run.onclick = async () => {
     console.log('\nConsumer start\n');
 
-    const testEntity = await TestEntity.from(ADR) ?? await TestEntity.create({ text: 'test consumer' }, { store: ARD });
+    const testEntity = await TestEntity.restoreOrCreate(SOUL, { text: 'thoregon Q test' });
 
-    const consumer = await Facade.use(await ThoregonConsumer.at(srvroot));
+    const consumer = await Facade.use(await ThoregonConsumer.at(srvroot), { cls: ProducerInterface });
     universe.qtest.consumer = consumer;
 
     consumer.subscribe('change', (evt) => {
         console.log('Producer -> change', evt);
     });
 
-    consumer.with(testEntity);
-
-    // console.log('Producer.echo()', await consumer.echo('wer ruft in den Wald'));
-    // console.log('Producer.name = ', await consumer.name);
-    // consumer.name = 'Pwned';
+    console.log('Producer.echo()', await consumer.echo('wer ruft in den Wald'));
+    await consumer.with(testEntity);
+    await consumer.with([testEntity, 'A']);
+    await consumer.with({ test: testEntity, b: 'B' });
+    console.log('Producer.name = ', await consumer.name);
+    consumer.name = 'Pwned';
 
     await timeout(100);
     consumer.close();

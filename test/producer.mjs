@@ -32,7 +32,7 @@ export default class Producer {
     }
 
     with(entity) {
-        console.log("With Entity:", entity.text);
+        console.log("With Entity:", entity);
     }
 
 }
