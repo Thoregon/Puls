@@ -16,6 +16,15 @@
             margin           : 0;
             padding          : 0;
         }
+        #run {
+            visibility: hidden;
+            color: white;
+            margin: 3px;
+            padding: 5px;
+            border-radius: 3px;
+            border: 1px solid steelblue;
+            background-color: steelblue;
+        }
     </style>
 </head>
 
@@ -23,6 +32,10 @@
 
 <p>Thore͛gon Spikes</p>
 <p id="status">tests only...</p>
+<br>
+<span id="run">RUN</span>
+<br>
+
 <thoregon-app></thoregon-app>
 
 <script type="module" src="./protouniverse.mjs"></script>
@@ -30,7 +43,12 @@
     document.addEventListener('universe', async () => {
         let elem = document.querySelector('#status');
         elem.innerHTML = "... inflated";
-        await import('./test/spikes.mjs');
+        const $run = document.getElementById('run');
+        $run.style.visibility = 'visible';
+        $run.onclick = ('run', async () => {
+            elem.innerHTML = "... spikes started";
+            await import('./test/spikes.mjs');
+        })
     });
 </script>
 </body>

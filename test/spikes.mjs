@@ -7,9 +7,116 @@
  */
 
 /******************************************************************/
+/* directory property delete                                      */
+/******************************************************************/
+
+import { doAsync, timeout }               from "/evolux.universe";
+import ThoregonEntity, { ThoregonObject } from "/thoregon.archetim/lib/thoregonentity.mjs";
+import Directory                          from "/thoregon.archetim/lib/directory.mjs";
+
+const store = universe.random();
+console.log("store", store);
+const dir = await Directory.create({ store });
+
+dir.addEventListener('change', (evt) => console.log('dir change', evt));
+
+dir.x = { x: 'x' };
+dir.y = { y: 'y' };
+dir.z = { z: 'z' };
+
+delete dir.y;
+console.log('3', dir);
+
+const dirA = await ThoregonObject.from(store);
+debugger;
+window.dirA = dirA;
+
+for await (const entry of dirA) {
+    console.log("entry", entry);
+}
+
+
+debugger;
+
+/******************************************************************/
+/* peristent property delete                                      */
+/******************************************************************/
+/*
+
+import { doAsync, timeout }               from "/evolux.universe";
+import ThoregonEntity, { ThoregonObject } from "/thoregon.archetim/lib/thoregonentity.mjs";
+import MetaClass                          from "/thoregon.archetim/lib/metaclass/metaclass.mjs";
+import Directory                          from "/thoregon.archetim/lib/directory.mjs";
+
+class TestBOMeta extends MetaClass {
+
+    initiateInstance() {
+        this.name = "TestBO";
+
+        this.text("txt");
+        this.object("ref");
+        this.collection("dir",  Directory);
+    }
+
+}
+
+class TestBO extends ThoregonEntity() {
+    constructor(props) {
+        super();
+        Object.assign(this, props);
+    }
+}
+
+TestBO.checkIn(import.meta, TestBOMeta);
+
+// debugger;
+
+const store = universe.random();
+console.log("store", store);
+const a = await TestBO.create({}, { store });
+
+a.addEventListener('change', (evt) => console.log('a change', evt));
+
+a.txt = "text A";
+a.ref = await TestBO.initiate();
+
+const b = await a.ref;
+b.txt = "text B";
+
+const dir = await a.dir;
+dir.x = { x: 'x' };
+dir.y = { y: 'y' };
+
+await doAsync();
+
+delete a.txt;
+await doAsync();
+console.log('1', a);
+
+delete a.ref;
+await doAsync();
+console.log('2', a);
+
+delete dir.y;
+console.log('3', dir);
+
+const A = await ThoregonObject.from(store);
+
+const dirA = await A.dir;
+debugger;
+
+for await (const entry of dirA) {
+    console.log("entry", entry);
+}
+
+debugger;
+*/
+
+/******************************************************************/
 /* autocomplete collection & directory                            */
 /******************************************************************/
 
+/*
 import { doAsync, timeout } from "/evolux.universe";
 import ThoregonEntity       from "/thoregon.archetim/lib/thoregonentity.mjs";
 import MetaClass            from "/thoregon.archetim/lib/metaclass/metaclass.mjs";
@@ -22,8 +129,8 @@ class TestBOMeta extends MetaClass {
         this.name = "TestBO";
 
         this.text("txt");
-        this.collection("col",  Collection, /*{ autocomplete: true }*/); // autocomplete default is true in this case
-        this.collection("dir",  Directory, /*{ autocomplete: true }*/); // autocomplete default is true in this case
+        this.collection("col",  Collection); // autocomplete default is true in this case
+        this.collection("dir",  Directory);  // autocomplete default is true in this case
     }
 
 }
@@ -60,6 +167,7 @@ console.log(await a2.prop('dir.y'));
 console.log([...(await a2.col).propertyNames]);
 
 debugger;
+*/
 
 /******************************************************************/
 /* decorated instances                                            */
