@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Audio</title>
+    <style>
+        .btnplay {
+            width: 250px;
+            border: 1px lightskyblue;
+            border-radius: 2px;
+            background-color: lightskyblue;
+            color: papayawhip;
+            text-align: center;
+            padding: 3px 5px;
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            font-weight: bold;
+        }
+        .btnplay:hover {
+            border-color: #4D79D8;
+            background-color: #4D79D8;
+        }
+
+        .playing {
+            border-color: palegreen;
+            background-color: palegreen;
+        }
+        .btnplay.playing:hover {
+            border-color: #e1fb98;
+            background-color: #e1fb98;
+        }
+    </style>
+</head>
+<body>
+
+<div id="playlist_container">
+    <div class = "song">
+        <p class="btnplay" onclick="play(this)">Play</p>
+        <audio id="player" style="display:none" id ="1" src=""  preload="none" >
+        </audio>
+    </div>
+</div>
+
+<script>
+
+    let streamurl = 'https://stream.rockantenne.de/heavy-metal/stream/aacp'; // 'https://ice2.somafm.com/suburbsofgoa-128-aac'; //
+    let streams = [
+        // metal
+        'http://streams.radiobob.de/bob-metal/mp3-192/streams.radiobob.de',
+        'http://bob.hoerradar.de/radiobob-metal-mp3-hq?sABC=5s461p0s%230%231659r16s160q1on94pr7qn00oq3093ro%23fgernzf.enqvbobo.qr&1598430223426=&amsparams=playerid:streams.radiobob.de;skey:1598430223',
+        'https://stream.rockantenne.de/heavy-metal/stream/aacp',
+
+        // rock
+        'https://stream.rockantenne.de/rockantenne/stream/aacp',
+        'https://stream.rockantenne.de/alternative/stream/aacp',
+
+        // chillout
+        'http://listen.radionomy.com/costa-del-mar',
+        'http://digital.lounge.fm/',
+        'https://ice2.somafm.com/suburbsofgoa-128-aac',     // https://somafm.com/suburbsofgoa/directstreamlinks.html
+    ]
+
+    async function play(elem) {
+        var player = document.getElementById('player');
+        if (player.paused) {
+            // Cachen eines streams vermeiden: (nur, wenn die JavaScript Funktionalität verwendet wird, und nicht, wenn die nativen audio-controls benutzt werden)
+            url = streamurl;    // streams[0];
+            var stream = url  + "?" + new Date().getTime();
+            player.src = stream;
+
+            try {
+                elem.classList.add("playing");
+                let status = await player.play();
+                player.onended = () => {      // switch visibility
+                    elem.classList.remove("playing");
+                };
+                player.onerror = (err) => {   // todo
+                    elem.classList.remove("playing");
+                    console.log(err);
+                };
+            } catch (err) {   // todo
+                elem.classList.remove("playing");
+                console.log(err);
+            }
+        } else {
+            player.pause();
+        }
+    }
+</script>
+
+</body>
+</html>

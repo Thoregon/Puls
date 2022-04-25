@@ -7,7 +7,7 @@
  */
 
 /******************************************************************/
-/* directory property delete                                      */
+/* directory property delete & reload                             */
 /******************************************************************/
 
 import { doAsync, timeout }               from "/evolux.universe";
