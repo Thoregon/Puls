@@ -10,6 +10,54 @@
 /* directory property delete & reload                             */
 /******************************************************************/
 
+import { doAsync, timeout } from "/evolux.universe";
+import PromiseChain         from "/thoregon.archetim/lib/promisechain.mjs";
+
+let i = 1;
+
+class Test {
+
+    constructor(props) {
+        this.i = i++;
+    }
+
+
+    get x() {
+        return new Test();
+    }
+
+    fn() {
+    //    await timeout(100);
+        return "done: " + this.i;
+    }
+}
+
+try {
+    const { proxy } = PromiseChain.with((resolve, reject) => { resolve(new Test()); });
+    const x = proxy;
+    /*
+        debugger;
+
+        const y = await x.x.x.x;
+        console.log(await y.fn());
+    */
+
+    const z = x.x.x;
+
+    debugger;
+    console.log(await z.fn());
+} catch (e) {
+    debugger;
+    console.log(e);
+}
+
+// console.log("PromiseChain ", await x.x.x.x.fn());
+
+/******************************************************************/
+/* directory property delete & reload                             */
+/******************************************************************/
+
+/*
 import { doAsync, timeout }               from "/evolux.universe";
 import ThoregonEntity, { ThoregonObject } from "/thoregon.archetim/lib/thoregonentity.mjs";
 import Directory                          from "/thoregon.archetim/lib/directory.mjs";
@@ -37,6 +85,7 @@ for await (const entry of dirA) {
 
 
 debugger;
+*/
 
 /******************************************************************/
 /* peristent property delete                                      */
