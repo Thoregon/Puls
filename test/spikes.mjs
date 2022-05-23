@@ -6,10 +6,28 @@
  * @see: {@link https://github.com/Thoregon}
  */
 
+
+/******************************************************************/
+/* thoregon decorator with promise chain                          */
+/******************************************************************/
+
+/*
+import { doAsync, timeout } from "/evolux.universe";
+
+debugger;
+
+console.log("1");
+const agentid = await me.agents.dpRuuCDRDUoc8Jd4WbBMiDQrtESwWayl.id;
+console.log("2", agentid);
+debugger;
+*/
+
+
 /******************************************************************/
 /* directory property delete & reload                             */
 /******************************************************************/
 
+/*
 import { doAsync, timeout } from "/evolux.universe";
 import PromiseChain         from "/thoregon.archetim/lib/promisechain.mjs";
 
@@ -26,8 +44,8 @@ class Test {
         return new Test();
     }
 
-    fn() {
-    //    await timeout(100);
+    async fn() {
+        await timeout(100);
         return "done: " + this.i;
     }
 }
@@ -35,21 +53,17 @@ class Test {
 try {
     const { proxy } = PromiseChain.with((resolve, reject) => { resolve(new Test()); });
     const x = proxy;
-    /*
-        debugger;
-
-        const y = await x.x.x.x;
-        console.log(await y.fn());
-    */
 
     const z = x.x.x;
 
     debugger;
-    console.log(await z.fn());
+    console.log("1", await z.fn());
+    console.log("2", await x.x.x.x.fn());
 } catch (e) {
     debugger;
     console.log(e);
 }
+*/
 
 // console.log("PromiseChain ", await x.x.x.x.fn());
 
