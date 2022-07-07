@@ -202,46 +202,41 @@ export default class ProtoUniverse {
 
     async inflate() {
         thoregon.checkpoint("§§ protouniverse inflate");
-        let wasinstalled = true;
         try {
             // install service worker with the IPFS peer
-            wasinstalled = await this.installServiceWorker();
+            await this.installServiceWorker();
         } catch (e) {
             // todo: handle error properly
             console.log('%% Service worker registration failed:', e);
             return;
         }
         await doAsync();
-        if (!wasinstalled) {
-            // todo: check if 'serviceworker.skipWaiting()' is sufficient or the page needs a reload on first install
-            // window.location.reload();
-        } else {
-            // setup the communication interface to the service worker
-            this.definePulsInterface();
-            // set development mode
-            await puls.dev(isDev);
 
-            // establish the IPFS loader
-            // await this.initWorkers();
+        // setup the communication interface to the service worker
+        this.definePulsInterface();
+        // set development mode
+        await puls.dev(isDev);
 
-            // import basic THORE͛GON components
-            thoregon.checkpoint("§§ protouniverse inflate 4");
-            let letThereBeLight = (await import('/evolux.universe/lib/reliant/letThereBeLight.mjs')).default;
-            thoregon.checkpoint("§§ protouniverse inflate 5");
-            // and boot
-            let universe = await letThereBeLight();
+        // establish the IPFS loader
+        // await this.initWorkers();
 
-            thoregon.checkpoint("§§ start delta");
+        // import basic THORE͛GON components
+        thoregon.checkpoint("§§ protouniverse inflate 4");
+        const letThereBeLight = (await import('/evolux.universe/lib/reliant/letThereBeLight.mjs')).default;
+        thoregon.checkpoint("§§ protouniverse inflate 5");
+        // and boot
+        let universe = await letThereBeLight();
 
-            let id = universe.random();     // tmp id for this instance (window)
+        thoregon.checkpoint("§§ start delta");
 
-            // add puls as global
-            universe.puls = Object.freeze(puls);
-            window.puls   = universe.puls;
+        let id = universe.random();     // tmp id for this instance (window)
 
-            // now restart the app
-            // await dorifer.restartApp();
-        }
+        // add puls as global
+        universe.puls = Object.freeze(puls);
+        window.puls   = universe.puls;
+
+        // now restart the app
+        // await dorifer.restartApp();
     }
 
     definePulsInterface() {
@@ -267,21 +262,27 @@ export default class ProtoUniverse {
     async installServiceWorker(opts) {
         let wasinstalled = false;
 
+
         if (navigator.serviceWorker.controller) {
             // console.log("%% service worker already loaded exists");
             registration = await navigator.serviceWorker.ready; // navigator.serviceWorker.controller;
-            await registration.update();
+
+            // todo [OPEN]: add a check for a service worker update and do it
+            // registration.onupdatefound = () => {...}
+            // await registration.update();
+
             wasinstalled = true;
             // console.log("%% service worker update");
+            navigator.serviceWorker.addEventListener("message", async (event) => await this.serviceworkerMessage(event) );
         } else {
             // todo [REFACTOR]: check the support status for workers as module -> https://stackoverflow.com/questions/44118600/web-workers-how-to-import-modules
             registration = await navigator.serviceWorker.register('./pulssw.js', /*{ scope: '/', type: "module" }*/);
             // console.log("%% service worker setup registered");
             registration = await navigator.serviceWorker.ready;
-            // now wait a moment
-            await timeout(300);
+            navigator.serviceWorker.addEventListener("message", async (event) => await this.serviceworkerMessage(event) );
+            // now wait to activate the service worker and let it claim its clients. this prevents a reload
+            await this.serviceWorkerRequest({ cmd: 'claim' });
         }
-        navigator.serviceWorker.addEventListener("message", async (event) => await this.serviceworkerMessage(event) );
 
         return wasinstalled;
     }

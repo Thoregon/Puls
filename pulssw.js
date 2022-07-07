@@ -32,11 +32,9 @@ importScripts( './puls.mjs');
 const workers = {};
 
 self.addEventListener('install', (event) => {
-//    console.log(':: The service worker is being installed.', event);
+    event.waitUntil(skipWaiting()) // forces the waiting ServiceWorker to become the active ServiceWorker
+    // event.waitUntil(event.target.skipWaiting()) // forces the waiting ServiceWorker to become the active ServiceWorker
     event.waitUntil(puls.precache());
-//    console.log(':: service worker skipWaiting()', event);
-    event.waitUntil(event.target.skipWaiting()) // forces the waiting ServiceWorker to become the active ServiceWorker
-    // return self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -62,6 +60,13 @@ self.addEventListener('fetch', async (event) => {
  * message communication
  */
 self.addEventListener('message', (event) => {
+    // directly handle the claim command
+    if (event.data?.cmd === 'claim') {
+        const messageSource = event.source;
+        event.waitUntil(self.skipWaiting());
+        event.waitUntil(self.clients.claim());
+        messageSource.postMessage({ cmd: 'claim', "ack": true });
+    }
     // console.log('The service worker received a message.', event);
     puls.handleMessage(event);
     // messageSource.postMessage({ "ack": true });
