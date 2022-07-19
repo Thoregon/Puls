@@ -260,27 +260,38 @@ export default class ProtoUniverse {
     }
 
     async installServiceWorker(opts) {
+        const serviceWorker = navigator.serviceWorker;
+        // todo [OPEN]: check if browser supports service workers -> hint to user 'use modern browser'
         let wasinstalled = false;
 
-
-        if (navigator.serviceWorker.controller) {
+        if (serviceWorker.controller) {
             // console.log("%% service worker already loaded exists");
-            registration = await navigator.serviceWorker.ready; // navigator.serviceWorker.controller;
+            registration = await serviceWorker.ready; // serviceWorker.controller;
 
-            // todo [OPEN]: add a check for a service worker update and do it
-            // registration.onupdatefound = () => {...}
-            // await registration.update();
+            // check for a service worker update
+            // the updated service worker automatically become active (skipWaiting) and claims all clients
+            // no extra 'claim' message necessary like after first install
+            registration.onupdatefound = (evt) => { /*console.log(">> ServiceWorker UPDATE", evt)*/ };
+            await registration.update();
 
             wasinstalled = true;
-            // console.log("%% service worker update");
-            navigator.serviceWorker.addEventListener("message", async (event) => await this.serviceworkerMessage(event) );
+            serviceWorker.addEventListener("message", async (event) => await this.serviceworkerMessage(event) );
         } else {
             // todo [REFACTOR]: check the support status for workers as module -> https://stackoverflow.com/questions/44118600/web-workers-how-to-import-modules
-            registration = await navigator.serviceWorker.register('./pulssw.js', /*{ scope: '/', type: "module" }*/);
-            // console.log("%% service worker setup registered");
-            registration = await navigator.serviceWorker.ready;
-            navigator.serviceWorker.addEventListener("message", async (event) => await this.serviceworkerMessage(event) );
-            // now wait to activate the service worker and let it claim its clients. this prevents a reload
+            /* support feature detection
+                  try {
+                    registration = await serviceWorker.register('pulssw.js', { type: 'module' });
+                  } catch(error) {
+                    registration = await serviceWorker.register('pulssw_0.js');
+                  }
+             */
+            await serviceWorker.register('./pulssw.js', /*{ scope: '/', type: "module" }*/);
+            registration = await serviceWorker.ready;
+
+            serviceWorker.addEventListener("message", async (event) => await this.serviceworkerMessage(event) );
+            // now wait to activate the service worker and let it claim its clients. this prevents a page reload
+            // this is the case when a hard reload (with or w/o clear cache) happens
+            // the first install does 'skipWaiting' and claims all clients
             await this.serviceWorkerRequest({ cmd: 'claim' });
         }
 

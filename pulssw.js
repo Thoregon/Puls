@@ -29,6 +29,7 @@ Object.defineProperties(thoregon, {
 importScripts( './puls.mjs');
 // now the PULS is available
 
+// workers for extended functionality
 const workers = {};
 
 self.addEventListener('install', (event) => {
@@ -61,21 +62,15 @@ self.addEventListener('fetch', async (event) => {
  */
 self.addEventListener('message', (event) => {
     // directly handle the claim command
+    // this is to activate and claim all clients in case of a 'hard' reload
     if (event.data?.cmd === 'claim') {
         const messageSource = event.source;
         event.waitUntil(self.skipWaiting());
         event.waitUntil(self.clients.claim());
         messageSource.postMessage({ cmd: 'claim', "ack": true });
     }
-    // console.log('The service worker received a message.', event);
+
     puls.handleMessage(event);
-    // messageSource.postMessage({ "ack": true });
-    /*
-        event.waitUntil((async () => {
-            const clients = await self.clients.matchAll();
-            clients.forEach(client => client.postMessage("answer"));
-        })());
-    */
 });
 
 /*
