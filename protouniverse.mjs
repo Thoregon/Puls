@@ -1,12 +1,21 @@
 /**
  * Thoregon micro kernel
  *
+ * setup the thoregon environment for browser based runtime
+ *
  * Works as a bootloader, loads basic components.
  * - ipfs
  * From ipfs:
  * - gun
  * - evolux.universe
  * - evolux.dyncomponents
+ *
+ * todo:
+ *  - cleanup
+ *  - refactor
+ *  - order
+ *  - document
+ *
  *
  * @author: Bernhard Lukassen
  * @licence: MIT
@@ -21,14 +30,6 @@ const timeout = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const doAsync = () => timeout(0);
 
 let registration;
-
-const rnd = (l, c) => {
-    var s = '';
-    l = l || 24; // you are not going to make a 0 length random number, so no need to check type
-    c = c || '0123456789ABCDEFGHIJKLMNOPQRSTUVWXZabcdefghijklmnopqrstuvwxyz';
-    while(l > 0){ s += c.charAt(Math.floor(Math.random() * c.length)); l-- }
-    return s;
-}
 
 /*
     clientparams: recognise kind of peer/client
@@ -190,6 +191,32 @@ const puls = {};
 // define globals
 Object.defineProperties(window, properties);
 
+//
+// Crypto polyfills
+//
+
+if (globalThis.crypto) {
+    // prevent timing side channel attacks
+    crypto.timingSafeEqual = function timingSafeEqual(a, b) {
+        if (!Buffer.isBuffer(a)) {
+            throw new TypeError('First argument must be a buffer')
+        }
+        if (!Buffer.isBuffer(b)) {
+            throw new TypeError('Second argument must be a buffer')
+        }
+        if (a.length !== b.length) {
+            throw new TypeError('Input buffers must have the same length')
+        }
+        var len = a.length
+        var out = 0
+        var i = -1
+        while (++i < len) {
+            out |= a[i] ^ b[i]
+        }
+        return out === 0
+    }
+}
+
 // can be changed by setting: thoregon.swtimeout = n
 // if thoregon.swtimeout <= 0 not timeout is used
 const SERVICEWORKERREQUESTTIMEOUT = 2500;
@@ -234,9 +261,6 @@ export default class ProtoUniverse {
         // add puls as global
         universe.puls = Object.freeze(puls);
         window.puls   = universe.puls;
-
-        // now restart the app
-        // await dorifer.restartApp();
     }
 
     definePulsInterface() {
