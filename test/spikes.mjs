@@ -8,6 +8,54 @@
 
 
 /******************************************************************/
+/* ThoregonEntity initiate                                        */
+/******************************************************************/
+
+import { doAsync, timeout } from "/evolux.universe";
+import ThoregonEntity       from "/thoregon.archetim/lib/thoregonentity.mjs";
+import MetaClass            from "/thoregon.archetim/lib/metaclass/metaclass.mjs";
+
+class TestBOMeta extends MetaClass {
+
+    initiateInstance() {
+        this.name = "TestBO";
+
+        this.text("a");
+        this.object("b");
+    }
+
+}
+
+class TestBO extends ThoregonEntity() {
+    constructor(props) {
+        super();
+        Object.assign(this, props);
+    }
+}
+
+TestBO.checkIn(import.meta, TestBOMeta);
+
+
+const store = universe.random();
+console.log("store", store);
+const a = await TestBO.create({}, { store });
+
+let b = await TestBO.initiate();
+// @@@
+b.addEventListener('materialized', (evt) => console.log('materialized', evt));
+b.addEventListener('change', (evt) => console.log(evt));
+
+debugger;
+
+b.a = "set value of b.a";
+
+debugger;
+
+a.b = b;
+
+debugger;
+
+/******************************************************************/
 /* thoregon decorator with promise chain                          */
 /******************************************************************/
 
@@ -102,7 +150,7 @@ debugger;
 */
 
 /******************************************************************/
-/* peristent property delete                                      */
+/* ThoregonEntity initiate                                        */
 /******************************************************************/
 /*
 
@@ -233,7 +281,7 @@ debugger;
 */
 
 /******************************************************************/
-/* decorated instances                                            */
+/* ThoregonEntity initiate                                        */
 /******************************************************************/
 /*
 

@@ -9,7 +9,9 @@
  * @see: {@link https://github.com/Thoregon}
  */
 
-const wsroot = `ws:${location.host}`;
+const THOREGONMODULES = /^\/thoregon\.(.+)|^\/evolux\.(.+)|^\/terra\.(.+)/;
+
+const WSROOT = `ws:${location.host}`;
 
 const isGET = (request) => request.method === 'GET';
 
@@ -23,7 +25,7 @@ class TDevLoader extends Loader {
     /*async*/ doStart() {
         return new Promise((resolve, reject) => {
             try {
-                let ws  = new WebSocket(wsroot);
+                let ws  = new WebSocket(WSROOT);
                 this.ws = ws;
 
                 this.wsid    = 1;      // just a counter to identify the requests
@@ -127,6 +129,16 @@ class TDevLoader extends Loader {
               abort = true;
           }
       });
+    }
+
+    canHandle(request) {
+        let url = request.url;
+        let pathname = onlyPath(url);
+        return this.isResponsible(pathname);
+    }
+
+    isResponsible(url) {
+        return (this._settings.thoregon === 'dev') || !url.match(THOREGONMODULES);
     }
 
     /*

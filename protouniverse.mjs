@@ -45,7 +45,7 @@ let registration;
  */
 const url = new URL(document.location.href);
 const devparam = url.searchParams.get('isDev');
-const isDev = devparam ? devparam === 'true' || devparam === '1' : window.location.hostname === 'localhost';
+const isDev = devparam ? devparam === 'true' || devparam === '1' : window.location.hostname === 'localhost' || window.location.pathname.indexOf('dev.') > -1;   // todo: review if either 'localhost' or 'thoergondev.html', not both!
 
 let protouniverse;
 
@@ -217,6 +217,16 @@ if (globalThis.crypto) {
     }
 }
 
+//
+// preload dev settings if exists
+//
+
+const devSettings = { isDev };
+try {
+    const exports = await import('/universe.dev.mjs');
+    if (exports.DEV) Object.assign(devSettings, exports.DEV);
+} catch (ignore) {}
+
 // can be changed by setting: thoregon.swtimeout = n
 // if thoregon.swtimeout <= 0 not timeout is used
 const SERVICEWORKERREQUESTTIMEOUT = 2500;
@@ -242,7 +252,7 @@ export default class ProtoUniverse {
         // setup the communication interface to the service worker
         this.definePulsInterface();
         // set development mode
-        await puls.dev(isDev);
+        await puls.dev(devSettings);
 
         // establish the IPFS loader
         // await this.initWorkers();
@@ -269,13 +279,13 @@ export default class ProtoUniverse {
         // todo: must be hidden for other loaded components
         //
         Object.assign(puls, {
-            serviceWorkerRequest: async (...args) => await this.serviceWorkerRequest(...args),
-            reset               : async ()        => await this.serviceWorkerRequest({ cmd: 'reset' }),
-            clear               : async (cache)   => await this.serviceWorkerRequest({ cmd: 'clearCache', cache }),
-            state               : async ()        => await this.serviceWorkerRequest({ cmd: 'state' }),
-            dev                 : async (state)   => await this.serviceWorkerRequest({ cmd: 'dev', state }),
-            inCache             : async (path)    => await this.serviceWorkerRequest({ cmd: 'inCache', path }),
-            listCache           : async ()        => await this.serviceWorkerRequest({ cmd: 'listCache' }),
+            serviceWorkerRequest: async (...args)  => await this.serviceWorkerRequest(...args),
+            reset               : async ()         => await this.serviceWorkerRequest({ cmd: 'reset' }),
+            clear               : async (cache)    => await this.serviceWorkerRequest({ cmd: 'clearCache', cache }),
+            state               : async ()         => await this.serviceWorkerRequest({ cmd: 'state' }),
+            dev                 : async (settings) => await this.serviceWorkerRequest({ cmd: 'dev', settings }),
+            inCache             : async (path)     => await this.serviceWorkerRequest({ cmd: 'inCache', path }),
+            listCache           : async ()         => await this.serviceWorkerRequest({ cmd: 'listCache' }),
             refreshThoregon     : async (refreshUI = true) => {
                 await this.serviceWorkerRequest({ cmd: 'refreshThoregonCache' });
                 if (refreshUI) window.location.reload();

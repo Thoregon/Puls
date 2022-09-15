@@ -7,7 +7,7 @@
 import Controller, { ComponentsWatcher } from '/evolux.dyncomponents';
 import { tservices, mythoregon }         from '/evolux.universe';
 
-import TESTIDENTITY                      from "./testidentity.mjs";
+// import TESTIDENTITY                      from "./testidentity.mjs";
 
 export { default as myagents }           from './agent_config.mjs';
 
@@ -19,12 +19,6 @@ export const HALT  = true;
  */
 
 export const gunpeers =    ['http://185.11.139.203:8765/gun'/*, 'https://matter.thoregon.io:8765/gun'*/];
-
-// todo: move to seperate config e.g. 'tru4d.config.mjs'
-export const responsibilities   = [
-    'thoregon.app'
-];
-
 
 //
 // define app if no reference for this distribution
@@ -99,7 +93,7 @@ universe.atDawn(async universe => {
 
     // register credentials for testing
     universe.Identity.addListener('auth', async () => await dorifer.restartApp() );
-    await universe.Identity.useIdentity(TESTIDENTITY);
+    // await universe.Identity.useIdentity(TESTIDENTITY);
 });
 
 universe.atDusk(async universe => {

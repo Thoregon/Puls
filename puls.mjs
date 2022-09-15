@@ -19,7 +19,7 @@ importScripts('./lib/zip/inflate.js');
 importScripts('./lib/zip/ArrayBufferReader.js');
 zip.useWebWorkers = false;  // don't use separate workers, this is a worker
 
-const THOREGONPKG = './lib/thoregon.zip';
+const THOREGONPKG = './lib/thoregonB.zip';
 
 var CACHE = 'PULS';
 const contentTypesByExtension = {   // todo: add more mime types
@@ -105,6 +105,7 @@ class Puls {
         let res = await fetch(THOREGONPKG);
         let thoregonpkg = await res.arrayBuffer();
         let entries = await this.getZipEntries(thoregonpkg);
+        // todo [OPEN]: validate archive signature -> need to pass 'genesis.mjs' from protouniverse to puls for pub keys
         await forEach(entries, async (entry) => {
             await this.cacheEntry(entry);
             // console.log("Cached>", entry.filename);
@@ -295,22 +296,26 @@ class Puls {
                 break;
             case 'inCache':
                 messageSource.postMessage({ cmd: "inChache", inChache: await this.inCache(data.path) });
+                break;
             case 'listCache':
                 messageSource.postMessage({ cmd: "listCache", chache: await this.listCache() });
+                break;
             case 'dev':
-                const isDev = !!data.state;
+                this.devSettings = data.settings;
+                const isDev = !!data.settings.isDev;
                 if (isDev) {
-                    this.resumeDevLoader();
+                    this.resumeDevLoader( this.devSettings);
                 } else {
                     this.pauseDevLoader();
                 }
                 thoregon.isDev = isDev;
                 messageSource.postMessage({ cmd, "ack": true });
+                break;
         }
     }
 
     //
-    // chache
+    // cache
     //
 
     async inCache(path) {
@@ -369,9 +374,9 @@ class Puls {
         if (devloader) devloader.pause();
     }
 
-    resumeDevLoader() {
+    resumeDevLoader(settings) {
         const devloader = this.getDevLoader();
-        if (devloader) devloader.resume();
+        if (devloader) devloader.resume(settings);
     }
 
     getDevLoader() {
