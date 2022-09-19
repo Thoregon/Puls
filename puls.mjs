@@ -101,6 +101,7 @@ class Puls {
      */
 
     async precache() {
+        return;
         if (!this.cache) await this.beat()
         let res = await fetch(THOREGONPKG);
         let thoregonpkg = await res.arrayBuffer();
@@ -391,7 +392,7 @@ self.puls = new Puls();
  */
 importScripts('./lib/loaders/loader.js')
 importScripts('./tdev/tdevloader.js');
-importScripts('./ipfs/ipfsloader.js');
+// importScripts('./ipfs/ipfsloader.js');
 // importScripts('./gun/matterloader.js'); -> moved to a shared worker
 // importScripts('./lib/loaders/msgportloader.js');
 // importScripts('./gun/gunloader.js');
