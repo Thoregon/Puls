@@ -22,6 +22,8 @@ class TestBOMeta extends MetaClass {
 
         this.text("a");
         this.object("b");
+
+        this.event("cancommit", function () { return  this.a != undefined });
     }
 
 }
@@ -35,25 +37,25 @@ class TestBO extends ThoregonEntity() {
 
 TestBO.checkIn(import.meta, TestBOMeta);
 
+debugger;
+
+TestBOMeta.getInstance().addEventListener('cancommit', (evt) => console.log('TestBO can commit>', evt));
 
 const store = universe.random();
 console.log("store", store);
-const a = await TestBO.create({}, { store });
+const a = await TestBO.materialize({}, { store });
+a.addEventListener('materialized', (evt) => console.log('a materialized', evt));
+a.addEventListener('change', (evt) => console.log('a>', evt));
 
-let b = await TestBO.initiate();
+let b = await TestBO.create();
 // @@@
-b.addEventListener('materialized', (evt) => console.log('materialized', evt));
-b.addEventListener('change', (evt) => console.log(evt));
-
-debugger;
+b.addEventListener('materialized', (evt) => console.log('b materialized', evt));
+b.addEventListener('change', (evt) => console.log('b>', evt));
+b.addEventListener('cancommit', (evt) => console.log('b can commit>', evt));
 
 b.a = "set value of b.a";
 
-debugger;
-
 a.b = b;
-
-debugger;
 
 /******************************************************************/
 /* thoregon decorator with promise chain                          */
@@ -189,7 +191,7 @@ const a = await TestBO.create({}, { store });
 a.addEventListener('change', (evt) => console.log('a change', evt));
 
 a.txt = "text A";
-a.ref = await TestBO.initiate();
+a.ref = await TestBO.create();
 
 const b = await a.ref;
 b.txt = "text B";
@@ -314,7 +316,7 @@ debugger;
 const refA = universe.random();
 
 const a = await TestBO.create({ a: 'A' }, { store: refA });
-const b = await TestBO.initiate({ b: 'B' });
+const b = await TestBO.create({ b: 'B' });
 a.b = b;
 
 await timeout(2000);
