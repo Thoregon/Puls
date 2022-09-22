@@ -101,7 +101,6 @@ class Puls {
      */
 
     async precache() {
-        return;
         if (!this.cache) await this.beat()
         let res = await fetch(THOREGONPKG);
         let thoregonpkg = await res.arrayBuffer();
@@ -198,8 +197,8 @@ class Puls {
         try {
             if (!this.cache) await this.beat();
             let request = event.request;
-            // enforce same origin in any case!
             let symlink = resolveSymlink(request.url);      // todo: check method etc. if this request can really be redirected to a 'local' resource
+            // enforce same origin in any case!
             if (symlink) {
                 await event.respondWith((async () => {
                     return Response.redirect(symlink, 301);
