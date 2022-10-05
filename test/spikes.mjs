@@ -6,10 +6,48 @@
  * @see: {@link https://github.com/Thoregon}
  */
 
+/******************************************************************/
+/* ThoregonEntity delete collection in property                   */
+/******************************************************************/
+
+import { doAsync, timeout } from "/evolux.universe";
+import ThoregonEntity       from "/thoregon.archetim/lib/thoregonentity.mjs";
+import MetaClass            from "/thoregon.archetim/lib/metaclass/metaclass.mjs";
+
+class TestBOMeta extends MetaClass {
+
+    initiateInstance() {
+        this.name = "TestBO";
+
+        this.text("a");
+        this.object("b");
+
+        this.event("cancommit", function () { return  this.a != undefined });
+    }
+
+}
+
+class TestBO extends ThoregonEntity() {
+    constructor(props) {
+        super();
+        Object.assign(this, props);
+    }
+}
+
+TestBO.checkIn(import.meta, TestBOMeta);
+
+window.TestBO = TestBO;
+window.myhome = await me.home;
+
+console.log("** Spikes done");
+// debugger;
+
+
 
 /******************************************************************/
 /* ThoregonEntity initiate                                        */
 /******************************************************************/
+/*
 
 import { doAsync, timeout } from "/evolux.universe";
 import ThoregonEntity       from "/thoregon.archetim/lib/thoregonentity.mjs";
@@ -56,6 +94,7 @@ b.addEventListener('cancommit', (evt) => console.log('b can commit>', evt));
 b.a = "set value of b.a";
 
 a.b = b;
+*/
 
 /******************************************************************/
 /* thoregon decorator with promise chain                          */
