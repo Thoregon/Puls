@@ -230,6 +230,10 @@ class Puls {
                 //  - consider http cache headers
                 //  - introduce refresh strategy when no headers
                 // await this.cache.put(pathname, response.clone());
+                if (!response) {
+                    debugger;
+                }
+
                 return response;
             })());
         } catch (e) {
