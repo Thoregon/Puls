@@ -8,7 +8,7 @@ export default {
         modules : []
     },
     system: {
-        location: 'https://lightningleds.com/data/thoregonB.zip'
+        location: './dist/thoregonB.zip'
     },
     identities: {
         THOREGON: {

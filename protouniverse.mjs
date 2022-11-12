@@ -21,9 +21,17 @@
  * @licence: MIT
  * @see: {@link https://github.com/Thoregon}
  */
-// import Spike from "./lib/spike.mjs";
 
-// console.log('## genesis.mjs START');
+//
+// repository entiries for boot
+//
+
+import genesis from "./genesis.mjs";
+import repos   from "./repos.mjs";
+
+//
+// helpers
+//
 
 const timeout = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 // just push back to the event loop and perform following steps 'async' (simulated)
@@ -43,9 +51,15 @@ let registration;
    yes, this can be faked by the peer but it does not matter because the peers can decide themselves what they are
    it is not of interest for the loader
  */
-const url = new URL(document.location.href);
-const devparam = url.searchParams.get('isDev');
-const isDev = devparam ? devparam === 'true' || devparam === '1' : window.location.hostname === 'localhost' || window.location.pathname.indexOf('dev.') > -1;   // todo: review if either 'localhost' or 'thoergondev.html', not both!
+// const url = new URL(document.location.href);
+// const devparam = url.searchParams.get('isDev');
+debugger;
+let   isDev = false; // devparam ? devparam === 'true' || devparam === '1' : window.location.hostname === 'localhost' || window.location.pathname.indexOf('dev.') > -1;   // todo: review if either 'localhost' or 'thoergondev.html', not both!
+try {
+    isDev = (await import("universe.dev.mjs")).default;
+    debugger;
+} catch (ignore) {}
+debugger;
 
 let protouniverse;
 
@@ -131,6 +145,21 @@ const deviceInfo = (() => {
     return agent
 })();
 
+//
+// source
+//
+
+async function source(specifier) {
+    const res = await fetch(specifier);
+    if (!res.ok) return;
+    const source = await res.text();
+    return source;
+}
+
+//-------------------------------------------------------------
+
+
+
 /*
  * define a global for 'thoregon' beside the 'universe'
  */
@@ -155,6 +184,7 @@ Object.defineProperties(thoregon, {
     'deviceInfo'       : { value: deviceInfo, configurable: false, enumerable: true, writable: false },
     'checkpoint'       : { value: (msg) => console.log(msg, Date.now() - thoregon.birth), configurable: false, enumerable: true, writable: false },
     'activateFirewalls': { value: async () => await protouniverse?.activateFirewalls(), configurable: false, enumerable : true, writable: false },
+    'source'           : { value: source, configurable: false, enumerable: false, writable: false },
 });
 
 /*
@@ -229,7 +259,28 @@ try {
 
 // can be changed by setting: thoregon.swtimeout = n
 // if thoregon.swtimeout <= 0 not timeout is used
-const SERVICEWORKERREQUESTTIMEOUT = 2500;
+const SERVICEWORKERREQUESTTIMEOUT = 15000;
+
+//
+//
+//
+
+async function maintainRepositories(puls) {
+    try {
+        // this is an initial repository list when there was no
+        const reposettings = (await import("./repos.mjs")).default;
+        if (!reposettings) return;
+        // todo [OPEN]:
+        //  - load repository list from local settings (indexeddb)
+        //  - maintain repository list when SSI signs on
+        const repolist = { PRIVATE: {}, ...reposettings };
+        await puls.repo(repolist);
+    } catch (ignore) { }    // no initial repositories defined
+}
+
+/**
+ * Protouniverse
+ */
 
 export default class ProtoUniverse {
 
@@ -253,6 +304,8 @@ export default class ProtoUniverse {
         this.definePulsInterface();
         // set development mode
         await puls.dev(devSettings);
+        // add repositories
+        await maintainRepositories(puls);
 
         // establish the IPFS loader
         // await this.initWorkers();
@@ -284,6 +337,7 @@ export default class ProtoUniverse {
             clear               : async (cache)    => await this.serviceWorkerRequest({ cmd: 'clearCache', cache }),
             state               : async ()         => await this.serviceWorkerRequest({ cmd: 'state' }),
             dev                 : async (settings) => await this.serviceWorkerRequest({ cmd: 'dev', settings }),
+            repo                : async (settings) => await this.serviceWorkerRequest({ cmd: 'repo', settings }),
             inCache             : async (path)     => await this.serviceWorkerRequest({ cmd: 'inCache', path }),
             listCache           : async ()         => await this.serviceWorkerRequest({ cmd: 'listCache' }),
             refreshThoregon     : async (refreshUI = true) => {

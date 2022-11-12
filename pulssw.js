@@ -34,8 +34,7 @@ const workers = {};
 
 self.addEventListener('install', (event) => {
     event.waitUntil(skipWaiting()) // forces the waiting ServiceWorker to become the active ServiceWorker
-    // event.waitUntil(event.target.skipWaiting()) // forces the waiting ServiceWorker to become the active ServiceWorker
-    event.waitUntil(puls.precache());
+    // event.waitUntil(puls.precache());
 });
 
 self.addEventListener('activate', (event) => {

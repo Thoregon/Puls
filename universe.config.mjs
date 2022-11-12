@@ -7,7 +7,12 @@
 import Controller, { ComponentsWatcher } from '/evolux.dyncomponents';
 import { tservices, mythoregon }         from '/evolux.universe';
 
-// import TESTIDENTITY                      from "./testidentity.mjs";
+//
+// JS engine independence
+//
+export { path }                          from '/evolux.util';
+
+import TESTIDENTITY                      from "./testidentity.mjs";
 
 export { default as myagents }           from './agent_config.mjs';
 
@@ -93,7 +98,7 @@ universe.atDawn(async universe => {
 
     // register credentials for testing
     universe.Identity.addListener('auth', async () => await dorifer.restartApp() );
-    // await universe.Identity.useIdentity(TESTIDENTITY);
+    await universe.Identity.useIdentity(TESTIDENTITY);
 });
 
 universe.atDusk(async universe => {

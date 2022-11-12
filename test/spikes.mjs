@@ -10,9 +10,8 @@
 /* ThoregonEntity delete collection in property                   */
 /******************************************************************/
 
-import { doAsync, timeout } from "/evolux.universe";
 import ThoregonEntity       from "/thoregon.archetim/lib/thoregonentity.mjs";
-import MetaClass            from "/thoregon.archetim/lib/metaclass/metaclass.mjs";
+// import MetaClass            from "/thoregon.archetim/lib/metaclass/metaclass.mjs";
 
 class TestBOMeta extends MetaClass {
 
@@ -27,20 +26,33 @@ class TestBOMeta extends MetaClass {
 
 }
 
-class TestBO extends ThoregonEntity() {
+"@ThoregonEntity"
+class TestA extends ThoregonEntity() {
+    "@AttributeText({ name: 'a' })"
+    "@AttributeObject({ name: 'b' })"
+
     constructor(props) {
         super();
         Object.assign(this, props);
     }
+
+
 }
 
 TestBO.checkIn(import.meta, TestBOMeta);
 
-window.TestBO = TestBO;
-window.myhome = await me.home;
 
-console.log("** Spikes done");
-// debugger;
+class TestB extends ThoregonEntity() {
+    "@AttributeText({ name: 'x', defaultValue: 'X' })"
+    "@AttributeCollection({ name: 'y', cls: '/thoregon.archetim/lib/Collection.mjs' })"
+
+    constructor(props) {
+        super();
+        Object.assign(this, props);
+    }
+
+
+}
 
 
 

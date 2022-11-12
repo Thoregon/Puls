@@ -19,9 +19,9 @@ importScripts('./lib/zip/inflate.js');
 importScripts('./lib/zip/ArrayBufferReader.js');
 zip.useWebWorkers = false;  // don't use separate workers, this is a worker
 
-const THOREGONPKG = './lib/thoregonB.zip';
+// const THOREGONPKG = './dist/thoregonB.zip';
+// var CACHE = 'PULS';
 
-var CACHE = 'PULS';
 const contentTypesByExtension = {   // todo: add more mime types
     'css'  : 'text/css',
     'mjs'  : 'application/javascript',
@@ -53,6 +53,7 @@ const ALLOWED_WEB_REQUESTS = [
     /^https:\/\/pioneersofchange-summit\.org\/.*/,
 ];
 
+// todo [REFACTOR]: move to a repository
 const SYMLINKS = {
     'https://thatsme.plus/wp-content/uploads/2020/12/logo.png'                              : '/ext/thatsmelogo.png',
     'https://fonts.googleapis.com/icon?family=Material+Icons'                               : '/ext/materialicons.css',
@@ -61,6 +62,14 @@ const SYMLINKS = {
 
 const resolveSymlink = (url) => SYMLINKS[url];
 const requestAllowed = (url) => !!ALLOWED_WEB_REQUESTS.find(location => url.match(location));
+
+const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+
+//
+//
+//
+
+const REPOLIST = {};
 
 /**
  *
@@ -76,82 +85,58 @@ class Puls {
         this._cachingloaders    = [];
         this._noncachingloaders = [];
         // other workers
+        this._repolistlisteners = [];
     }
 
     async clearCache(cachename) {
-        cachename = cachename || CACHE;
-        await caches.delete(cachename);
+        for await (const loader of this._cachingloaders) {
+            if (cachename) {
+                await loader.clearCache(cachename);
+            } else {
+                await loader.clearCaches();
+            }
+        }
     }
 
-    async refreshThoregonCache() {
-        delete this.cache;
-        await this.clearCache(CACHE);
-        await this.precache();
+    async clearAllCaches() {
+        await this.clearCache();
+        for await (const name of await caches.keys()) {
+            await caches.delete(name);
+        }
     }
+
+    // async refreshThoregonCache() {
+    //     delete this.cache;
+    //     await this.clearCache(CACHE);
+    //     await this.precache();
+    // }
 
     async beat() {
         // todo:
-        //  - open a cache for every handler (local, thoregon, gun, ipfs)
-        //  - separate cache for each component
-        this.cache = await caches.open(CACHE);
+        //  - open a cache for every repository in the list
+        // this.cache = await caches.open(CACHE);
     }
 
     /*
      * cache and fetch
      */
 
-    async precache() {
-        if (!this.cache) await this.beat()
-        let res = await fetch(THOREGONPKG);
-        let thoregonpkg = await res.arrayBuffer();
-        let entries = await this.getZipEntries(thoregonpkg);
-        // todo [OPEN]: validate archive signature -> need to pass 'genesis.mjs' from protouniverse to puls for pub keys
-        await forEach(entries, async (entry) => {
-            await this.cacheEntry(entry);
-            // console.log("Cached>", entry.filename);
-        })
+    // async precache() {
+    //     if (!this.cache) await this.beat()
+    //     let res = await fetch(THOREGONPKG);
+    //     let thoregonpkg = await res.arrayBuffer();
+    //     let entries = await this.getZipEntries(thoregonpkg);
+    //     // todo [OPEN]: validate archive signature -> need to pass 'genesis.mjs' from protouniverse to puls for pub keys
+    //     await forEach(entries, async (entry) => {
+    //         await this.cacheEntry(entry);
+    //         // console.log("Cached>", entry.filename);
+    //     })
+    // }
+
+    get repolist() {
+        return REPOLIST;
     }
 
-    getZipEntries(pkg) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                let zipreader = await this.createZipReader(pkg);
-                zipreader.getEntries(resolve);
-            } catch (e) {
-                reject(e);
-            }
-        });
-    }
-
-    createZipReader(pkg) {
-        return new Promise((fulfill, reject) => {
-            zip.createReader(new zip.ArrayBufferReader(pkg), fulfill, reject);
-        });
-    }
-
-    async cacheEntry(entry) {
-        if (entry.directory) return;    // just files, no directories to the cache
-        let location = this.buildLocation(entry.filename);
-        let data     = await this.getEntryData(entry);
-        // special handling of root modules ('index.mjs')
-        // this must be a redirect to maintain the directory (module) structure!
-        // otherwise relative path of 'import' is one level too high
-        if (entry.filename.endsWith('index.mjs')) {
-            var redirlocation = location.substr(0, location.length-('index.mjs'.length+1))
-            var redirect = Response.redirect(location, 301);    // 301: permanently moved, 302: temporarily moved
-            this.cache.put(redirlocation, redirect);
-        }
-        var response = new Response(data, {
-            headers: {
-                'Content-Type': this.getContentType(entry.filename)
-            }
-        });
-        return this.cache.put(location, response);
-    }
-
-    buildLocation(filename) {
-        return '/' + filename;
-    }
 
     // todo [REFACTOR]: this is a primitive and simple mime type matching. exchange by more sophisticated
     getContentType(filename) {
@@ -159,15 +144,7 @@ class Puls {
         if (filename === '/') return 'text/html';   // todo [REFACTOR]: implement better check if it is the entry point (thoregon.html)
         var tokens = filename.split('.');
         var extension = tokens[tokens.length - 1];
-        return contentTypesByExtension[extension] || 'text/plain';
-    }
-
-    getEntryData(entry) {
-        return new Promise((resolve, reject) => {
-            try {
-                entry.getData(new zip.BlobWriter(), resolve);
-            } catch (e) { reject(e); }
-        })
+        return contentTypesByExtension[extension] ?? 'text/plain';
     }
 
     isPermitted(url) {
@@ -195,7 +172,7 @@ class Puls {
      */
     async fetch(event) {
         try {
-            if (!this.cache) await this.beat();
+            // if (!this.cache) await this.beat();
             let request = event.request;
             let symlink = resolveSymlink(request.url);      // todo: check method etc. if this request can really be redirected to a 'local' resource
             // enforce same origin in any case!
@@ -212,15 +189,16 @@ class Puls {
 
                 // first lookup non caching loaders (mainly for dev and realtime)
                 response = await this.fetchNonCaching(request);
-                if (response) return response;
+                if (response) return response.type === 'error' ? undefined : response;
 
-                // not found, now lookup cache
-                response = await caches.match(pathname);
-                if (response) return response;
+                // !! the cache lookup has to be made by the responsible loader
+                //  don't uncomment
+                // response = await caches.match(pathname);
+                // if (response) return response;
 
                 // not found in cache, lookup caching loaders
                 response = await this.fetchCaching(request);
-                if (response) return response;
+                if (response) return response.type === 'error' ? undefined : response;
 
                 // Not found by any loader - return the result from a web server, but only if permitted
                 // `fetch` is essentially a "fallback"
@@ -294,21 +272,25 @@ class Puls {
                 await this.clearCache(data.cache);
                 messageSource.postMessage({ cmd, "ack": true });
                 break;
-            case 'refreshThoregonCache':
-                await this.refreshThoregonCache();
-                messageSource.postMessage({ cmd, "ack": true });
-                break;
+            // case 'refreshThoregonCache':
+            //     await this.refreshThoregonCache();
+            //     messageSource.postMessage({ cmd, "ack": true });
+            //     break;
             case 'inCache':
                 messageSource.postMessage({ cmd: "inChache", inChache: await this.inCache(data.path) });
                 break;
             case 'listCache':
                 messageSource.postMessage({ cmd: "listCache", chache: await this.listCache() });
                 break;
+            case 'repo':
+                const done = await this.maintainRepolist(data.settings);
+                messageSource.postMessage({ cmd: "repo", "ack": done });
+                break;
             case 'dev':
                 this.devSettings = data.settings;
                 const isDev = !!data.settings.isDev;
                 if (isDev) {
-                    this.resumeDevLoader( this.devSettings);
+                    this.resumeDevLoader(this.devSettings);
                 } else {
                     this.pauseDevLoader();
                 }
@@ -322,18 +304,58 @@ class Puls {
     // cache
     //
 
+    //
     async inCache(path) {
-        path = path.startsWith('/') ? '' : '/' + path;
-        const res = await puls.cache.match(self.location.origin + path);
-        return !!res;
+        return false;
+        // path = path.startsWith('/') ? '' : '/' + path;
+        // const res = await puls.cache.match(self.location.origin + path);
+        // return !!res;
     }
 
     async listCache() {
-        const i = self.location.origin.length;
-        const entries = (await puls.cache.keys()).map(req => req.url.substr(i));
+        return [];
+        // const i = self.location.origin.length;
+        // const entries = (await puls.cache.keys()).map(req => req.url.substr(i));
         // seems that cache entries does not provide any header or other useful information
         // const entries = (await puls.cache.keys()).map(req => {return { url: req.url.substr(i), contentType: req.headers.get('Content-Type'), redirected: req.redirected || false } });
-        return entries;
+        // return entries;
+    }
+
+    //
+    // repos
+    //
+    // maintain a repository list. priority top down. the first definition of a module counts
+    //
+
+    async maintainRepolist(settings) {
+        if (!settings) return;
+        Object.entries(settings).forEach(([name, entries]) => {
+            let repo = REPOLIST[name];
+            if (!repo) repo = REPOLIST[name] = {};
+            this.maintainRepoEntries(repo, entries);
+        });
+        // notify all listeners that repository list has been modified
+        for await (const listener of this._repolistlisteners) {
+            try {
+                await listener(REPOLIST);
+            } catch (e) {
+                console.log("Repository List Listener Error:", e);
+            }
+        }
+    }
+
+    maintainRepoEntries(repo, entries) {
+        Object.entries(entries).forEach(([modulename, settings]) => {
+           repo[modulename] = settings;
+        });
+    }
+
+    addRepoListener(fn) {
+        this._repolistlisteners.push(fn);
+    }
+
+    removeRepoListener(fn) {
+        this._repolistlisteners = this._repolistlisteners.filter((listener) => listener !== fn);
     }
 
     /*
@@ -386,7 +408,24 @@ class Puls {
     getDevLoader() {
         return puls._noncachingloaders.find(loader => loader.constructor.name === 'TDevLoader');
     }
-}
+
+    //
+    // Repository Loader
+    //
+
+    pauseRepoLoader() {
+        const devloader = this.getRepoLoader();
+        if (devloader) devloader.pause();
+    }
+
+    resumeRepoLoader(settings) {
+        const devloader = this.getRepoLoader();
+        if (devloader) devloader.resume(settings);
+    }
+
+    getRepoLoader() {
+        return puls._cachingloaders.find(loader => loader.constructor.name === 'RepoLoader');
+    }}
 
 self.puls = new Puls();
 
@@ -394,7 +433,11 @@ self.puls = new Puls();
  * now loaders can be defined get loaders
  */
 importScripts('./lib/loaders/loader.js')
-importScripts('./tdev/tdevloader.js');
+// importScripts('./tdev/tdevloader.js');
+importScripts('./lib/loaders/repoloader.js');
+
+
+// this loader may
 // importScripts('./ipfs/ipfsloader.js');
 // importScripts('./gun/matterloader.js'); -> moved to a shared worker
 // importScripts('./lib/loaders/msgportloader.js');
