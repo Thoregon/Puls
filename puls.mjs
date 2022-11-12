@@ -82,6 +82,8 @@ class Puls {
 
     reset() {
         this._registry          = {};
+        this.isDev              = false;
+        this._devloader         = undefined;
         this._cachingloaders    = [];
         this._noncachingloaders = [];
         // other workers
@@ -187,14 +189,15 @@ class Puls {
                 let pathname = onlyPath(request);
                 let response;
 
+                // dev only
+                if (this.isDev) {
+                    response = await this.fetchDevLoader(request);
+                    if (response) return response;
+                }
+
                 // first lookup non caching loaders (mainly for dev and realtime)
                 response = await this.fetchNonCaching(request);
                 if (response) return response.type === 'error' ? undefined : response;
-
-                // !! the cache lookup has to be made by the responsible loader
-                //  don't uncomment
-                // response = await caches.match(pathname);
-                // if (response) return response;
 
                 // not found in cache, lookup caching loaders
                 response = await this.fetchCaching(request);
@@ -218,6 +221,14 @@ class Puls {
             console.log("Fetch error:", event.request.url, e);
             // throw Error("Can't fetch");
         }
+    }
+
+    // dev loader has a special priority
+    async fetchDevLoader(request) {
+        let loader = this.getDevLoader();
+        if (!this._devloader) return;
+        let response = await loader.fetch(request);
+        return response;
     }
 
     async fetchNonCaching(request, i) {
@@ -294,7 +305,7 @@ class Puls {
                 } else {
                     this.pauseDevLoader();
                 }
-                thoregon.isDev = isDev;
+                this.isDev = isDev;
                 messageSource.postMessage({ cmd, "ack": true });
                 break;
         }
@@ -395,6 +406,10 @@ class Puls {
     // Dev Loader
     //
 
+    useDevLoader(loader) {
+        this._devloader = loader;
+    }
+
     pauseDevLoader() {
         const devloader = this.getDevLoader();
         if (devloader) devloader.pause();
@@ -402,11 +417,16 @@ class Puls {
 
     resumeDevLoader(settings) {
         const devloader = this.getDevLoader();
-        if (devloader) devloader.resume(settings);
+        if (!devloader) return;
+        if (devloader.isReady()) {
+            devloader.resume(settings);
+        } else {
+            devloader.start(settings);
+        }
     }
 
     getDevLoader() {
-        return puls._noncachingloaders.find(loader => loader.constructor.name === 'TDevLoader');
+        return this._devloader;
     }
 
     //
@@ -433,12 +453,11 @@ self.puls = new Puls();
  * now loaders can be defined get loaders
  */
 importScripts('./lib/loaders/loader.js')
-// importScripts('./tdev/tdevloader.js');
+importScripts('./tdev/tdevloader.js');
 importScripts('./lib/loaders/repoloader.js');
 
 
-// this loader may
+// this loader may be reactivated in future
 // importScripts('./ipfs/ipfsloader.js');
-// importScripts('./gun/matterloader.js'); -> moved to a shared worker
 // importScripts('./lib/loaders/msgportloader.js');
 // importScripts('./gun/gunloader.js');

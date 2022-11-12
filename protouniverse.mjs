@@ -53,13 +53,21 @@ let registration;
  */
 // const url = new URL(document.location.href);
 // const devparam = url.searchParams.get('isDev');
-debugger;
 let   isDev = false; // devparam ? devparam === 'true' || devparam === '1' : window.location.hostname === 'localhost' || window.location.pathname.indexOf('dev.') > -1;   // todo: review if either 'localhost' or 'thoergondev.html', not both!
+// try {
+//    isDev = (await import("./puls.dev.mjs")).default;
+// } catch (ignore) {}
+
+//
+// preload dev settings if exists
+//
+
+const devSettings = { isDev };
 try {
-    isDev = (await import("universe.dev.mjs")).default;
-    debugger;
+    const settings = (await import('./puls.dev.mjs')).default;
+    isDev = devSettings.isDev = true;
+    if (exports.DEV) Object.assign(devSettings, settings);
 } catch (ignore) {}
-debugger;
 
 let protouniverse;
 
@@ -246,16 +254,6 @@ if (globalThis.crypto) {
         return out === 0
     }
 }
-
-//
-// preload dev settings if exists
-//
-
-const devSettings = { isDev };
-try {
-    const exports = await import('/universe.dev.mjs');
-    if (exports.DEV) Object.assign(devSettings, exports.DEV);
-} catch (ignore) {}
 
 // can be changed by setting: thoregon.swtimeout = n
 // if thoregon.swtimeout <= 0 not timeout is used

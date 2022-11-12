@@ -173,4 +173,4 @@ class TDevLoader extends Loader {
     }
 }
 
-(async () => await puls.useLoader(new TDevLoader(), { priority: 0 , cache: false }) )()
+(async () => await puls.useDevLoader(new TDevLoader()))()
