@@ -97,8 +97,8 @@ universe.atDawn(async universe => {
     await thoregonsystem(universe);
 
     // register credentials for testing
-    universe.Identity.addListener('auth', async () => await dorifer.restartApp() );
-    await universe.Identity.useIdentity(TESTIDENTITY);
+    // universe.Identity.addListener('auth', async () => await dorifer.restartApp() );
+    // await universe.Identity.useIdentity(TESTIDENTITY);
 });
 
 universe.atDusk(async universe => {
