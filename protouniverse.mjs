@@ -66,7 +66,7 @@ const devSettings = { isDev };
 try {
     const settings = (await import('./puls.dev.mjs')).default;
     isDev = devSettings.isDev = true;
-    if (exports.DEV) Object.assign(devSettings, settings);
+    Object.assign(devSettings, settings);
 } catch (ignore) {}
 
 let protouniverse;

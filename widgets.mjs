@@ -7,5 +7,6 @@
  */
 
 export default {
-    'thatsme-widget-broadcastgreen-subscription' : 'http://localhost:7777/thoregon.html?app=thatsme-widget-broadcastgreen-subscription'
+    'thatsme-widget-broadcastgreen-subscription' : 'http://localhost:7777/thoregon.html#thatsme-widget-broadcastgreen-subscription',
+    'easypay-checkoutpage'                       : 'http://localhost:7777/thoregon.html#easypay-checkoutpage'
 }
