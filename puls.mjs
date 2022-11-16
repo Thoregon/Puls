@@ -92,11 +92,7 @@ class Puls {
 
     async clearCache(cachename) {
         for await (const loader of this._cachingloaders) {
-            if (cachename) {
-                await loader.clearCache(cachename);
-            } else {
-                await loader.clearCaches();
-            }
+            await loader.clearCache(cachename);
         }
     }
 
