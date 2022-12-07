@@ -310,18 +310,23 @@ export default class ProtoUniverse {
 
         // import basic THORE͛GON components
         thoregon.checkpoint("§§ protouniverse inflate 4");
+        // const watchdog = setTimeout(() => window.location.reload(), 1500);
         const letThereBeLight = (await import('/evolux.universe/lib/reliant/letThereBeLight.mjs')).default;
+        // clearTimeout(watchdog);
         thoregon.checkpoint("§§ protouniverse inflate 5");
         // and boot
         let universe = await letThereBeLight();
 
         thoregon.checkpoint("§§ start delta");
 
-        let id = universe.random();     // tmp id for this instance (window)
-
         // add puls as global
         universe.puls = Object.freeze(puls);
         window.puls   = universe.puls;
+
+        // todo [OPEN]: now seal global objects and local DBs from direct access from app code
+
+        // todo [REFACTOR]: cleanup 'prod' and 'dev' mode, introduce plugin
+        if (!(universe.DEV?.ssi)) await dorifer.restartApp();
     }
 
     definePulsInterface() {

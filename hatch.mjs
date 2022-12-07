@@ -6,6 +6,9 @@
  * @see: {@link https://github.com/Thoregon}
  */
 
+// todo [REFACTOR]: enable multiple widgets
+window.onwidgetready = () => {};
+
 /**
  *
  *  todo:
@@ -42,6 +45,7 @@ export default class ThoregonWidget extends HTMLElement {
 
     constructor() {
         super();
+        this._listeners = {};
     }
 
 
@@ -87,7 +91,8 @@ export default class ThoregonWidget extends HTMLElement {
 
     render() {
         let iframe = document.createElement('iframe');
-        let origin = this.buildWidgetURL();
+        // let origin = this.buildWidgetURL();
+        let origin = this.replaceAppParams();
         iframe.setAttribute("src", origin);
         iframe.setAttribute('frameborder', 0);
         iframe.setAttribute('allowfullscreen', '');
@@ -105,6 +110,17 @@ export default class ThoregonWidget extends HTMLElement {
         this.shadowRoot.appendChild(iframe);
     }
 
+    replaceAppParams() {
+        let url = new URL(this.widgetURL);
+        let hash = url.hash;
+        this.getAttributeNames().forEach(name => {
+            hash = hash.replaceAll('{' + name + '}', encodeURIComponent(this.getAttribute(name)));
+        });
+        // todo: add all other attributes as params
+        url.hash = hash;
+        return url.toString();
+    }
+
     buildWidgetURL() {
         let url = new URL(this.widgetURL);
         let params = url.searchParams;
@@ -119,6 +135,10 @@ export default class ThoregonWidget extends HTMLElement {
     adjustAndCheckParams(params) {
         // implement by subclass
         // throw on error(s)
+    }
+
+    setParams(params) {
+        this.iframe.contentWindow.postMessage({ type: 'setParams', params }, '*');
     }
 
     forwardSurroundingClicks() {
@@ -140,6 +160,7 @@ export default class ThoregonWidget extends HTMLElement {
         // debugger;
         // console.log(">> received widget event", evt.data);
         if (!this.handleWidgetEvent(evt)) this.defaultWidgetEvent(evt);
+        // this.dispatchWidgetEvent()
     }
 
     /**
@@ -154,10 +175,16 @@ export default class ThoregonWidget extends HTMLElement {
     }
 
     defaultWidgetEvent(evt) {
-        const type = evt.data.type;
+        const data = evt.data;
+        if (!data) return;
+        const type = data.type;
+        if (!type) return;
         switch (type) {
             case 'resize':
                 this.resize(evt);
+                break;
+            case 'initialized':
+                this.dispatchWidgetEvent('initialized', {});
                 break;
         }
     }
@@ -189,7 +216,11 @@ export default class ThoregonWidget extends HTMLElement {
             this._connected = true;
             this.prepare();
             this.render();
-
+            try {
+                window.onwidgetready();
+            } catch (e) {
+                console.log("onwidgetready", e);
+            }
         })();
     }
 
@@ -198,9 +229,37 @@ export default class ThoregonWidget extends HTMLElement {
      * called when the element is disconnected from the DOM
      */
     disconnectedCallback() {
+        this._listeners = {};
         try { this.destroy();} catch (e) { console.log("UI Error on destroy", e) }
     }
 
+    //
+    // app (widget) element listeners
+    //
+
+    addWidgetEventListener(eventname, listener) {
+        let eventlisteners = this._listeners[eventname];
+        if (!eventlisteners) eventlisteners = this._listeners[eventname] = [];
+        eventlisteners.push(listener);
+    }
+
+    removeWidgetEventListener(eventname, handler) {
+        let eventlisteners = this._listeners[eventname];
+        if (!eventlisteners) return;
+        this._listeners[eventname] = eventlisteners.filter((fn) => fn !== listener);
+    }
+
+    dispatchWidgetEvent(eventname, details) {
+        let eventlisteners = this._listeners[eventname];
+        if (!eventlisteners) return;
+        eventlisteners.forEach((listener) => {
+            try {
+                listener(details);
+            } catch (e) {
+                console.log("AppElement listener error:", e);
+            }
+        })
+    }
 }
 
 const kebap2camelCase = (kebap) => kebap.split('-').map(name => name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()).join('');
