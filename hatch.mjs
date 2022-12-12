@@ -181,7 +181,7 @@ export default class ThoregonWidget extends HTMLElement {
         if (!type) return;
         switch (type) {
             case 'resize':
-                this.resize(evt);
+//                this.resize(evt);
                 break;
             case 'initialized':
                 this.dispatchWidgetEvent('initialized', {});
