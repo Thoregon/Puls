@@ -37,7 +37,7 @@ const commoncss = `       :host {
         }
         iframe {
             width:      100%;
- /*           height:     auto;  */
+ /*           height:     100%; */
         }
 `;
 
