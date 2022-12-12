@@ -24,7 +24,7 @@ const commoncss = `       :host {
             display:    block;
             box-sizing: border-box;
             margin:     0;
-            padding:    1px;
+            padding:    0px;
             width:      100%;
            height:     auto;   
         /*  border:     1px dotted red; */
@@ -37,7 +37,7 @@ const commoncss = `       :host {
         }
         iframe {
             width:      100%;
-         /*   height:     100%; */
+ /*           height:     auto;  */
         }
 `;
 
@@ -191,7 +191,7 @@ export default class ThoregonWidget extends HTMLElement {
 
     resize(evt) {
         if (evt.data.height) this.iframe.style.height = evt.data.height + "px";
-        if (evt.data.width)  this.iframe.style.width  = evt.data.width  + "px";
+//        if (evt.data.width)  this.iframe.style.width  = evt.data.width  + "px";
     }
 
     /**
