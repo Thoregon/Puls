@@ -37,7 +37,7 @@ const commoncss = `       :host {
         }
         iframe {
             width:      100%;
- /*           height:     100%; */
+            height:     100%; */
         }
 `;
 
@@ -96,7 +96,7 @@ export default class ThoregonWidget extends HTMLElement {
         iframe.setAttribute("src", origin);
         iframe.setAttribute('frameborder', 0);
         iframe.setAttribute('allowfullscreen', '');
-        iframe.setAttribute('scrolling', 'no');
+        iframe.setAttribute('scrolling', 'yes');
 
         /*
                 iframe.setAttribute("width", this.offsetWidth + 'px');
@@ -190,7 +190,7 @@ export default class ThoregonWidget extends HTMLElement {
     }
 
     resize(evt) {
-        if (evt.data.height) this.iframe.style.height = evt.data.height + "px";
+//        if (evt.data.height) this.iframe.style.height = evt.data.height + "px";
 //        if (evt.data.width)  this.iframe.style.width  = evt.data.width  + "px";
     }
 
