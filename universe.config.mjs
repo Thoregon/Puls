@@ -26,6 +26,12 @@ export const HALT  = true;
 export const gunpeers =    ['http://185.11.139.203:8765/gun'/*, 'https://matter.thoregon.io:8765/gun'*/];
 
 //
+// test storae adapter
+//
+
+export const HTTPFILESINK = 'http://test.thoregon.app:7779';
+
+//
 // define app if no reference for this distribution
 //
 export const defaultapp = 'thatsme.app';
