@@ -29,7 +29,7 @@ export const gunpeers =    ['http://185.11.139.203:8765/gun'/*, 'https://matter.
 // test storae adapter
 //
 
-export const HTTPFILESINK = 'http://test.thoregon.app:7779';
+export const HTTPFILESINK = 'http://185.11.139.203:7779'; // 'http://test.thoregon.app:7779';
 
 //
 // define app if no reference for this distribution
