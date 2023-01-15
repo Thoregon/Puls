@@ -75,7 +75,8 @@ const deviceInfo = (() => {
     const agent = {
         browser  : { name: null, version: null, v: null, userAgent: null, app: null, os: null },
         mobile   : false,
-        pointlock: false
+        pointlock: false,
+        agent    : false
     };
 
     var nVer         = navigator.appVersion;
@@ -150,6 +151,8 @@ const deviceInfo = (() => {
 
     agent.browser.os = OSName;
     agent.mobile     = (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
+
+    agent.name = browserName + ' on ' + OSName;
     return agent
 })();
 
@@ -236,15 +239,10 @@ Object.defineProperties(window, properties);
 if (globalThis.crypto) {
     // prevent timing side channel attacks
     crypto.timingSafeEqual = function timingSafeEqual(a, b) {
-        if (!Buffer.isBuffer(a)) {
-            throw new TypeError('First argument must be a buffer')
-        }
-        if (!Buffer.isBuffer(b)) {
-            throw new TypeError('Second argument must be a buffer')
-        }
-        if (a.length !== b.length) {
-            throw new TypeError('Input buffers must have the same length')
-        }
+        if (!Buffer.isBuffer(a)) throw new TypeError('First argument must be a buffer');
+        if (!Buffer.isBuffer(b)) throw new TypeError('Second argument must be a buffer');
+        if (a.length !== b.length) return false;
+
         var len = a.length
         var out = 0
         var i = -1
