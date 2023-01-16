@@ -4,15 +4,18 @@
  * @author: Bernhard Lukassen
  */
 
-import Controller, { ComponentsWatcher } from '/evolux.dyncomponents';
-import { tservices, mythoregon }         from '/evolux.universe';
+import SEA                                  from '/evolux.everblack/lib/crypto/sea.mjs'
+import GunService                           from '/terra.gun/lib/reliant/gunservice.mjs';
+import IdentityReflection                   from '/thoregon.identity/lib/identityreflection.mjs';
+import Dorifer                              from '/thoregon.truCloud/lib/dorifer.mjs';
+import Aurora                               from "/thoregon.aurora";
 
 //
 // JS engine independence
 //
 export { path }                          from '/evolux.util';
 
-import TESTIDENTITY                      from "./testidentity.mjs";
+// import TESTIDENTITY                      from "./testidentity.mjs";
 
 export { default as myagents }           from './agent_config.mjs';
 
@@ -36,71 +39,26 @@ export const HTTPFILESINK = 'http://185.11.139.203:7779'; // 'http://test.thoreg
 //
 export const defaultapp = 'thatsme.app';
 
+
 //
-// define the universe for this distribution
+// initialize unviverse wide services an functions
 //
-// export const STRANGENESS = 'bwhOilJRd73uyFUzeKfJ13604fJdwKTy';  // the strangeness is a basic reference to be used as 'pepper' for all PoW's
-// export const DORIFER = 'HriEr6DQKudGfFVphupRuTyxLGKgxNay';  // the soul (address) of the dorifer directory
-// export const THOREGON_SPUB = '';
 
-const thoregonsystem = async (universe) => {
-    thoregon.checkpoint("§§ thoregonsystem install ");
-    const pubsub = (await import('/evolux.pubsub')).service;
-    await pubsub.install();
-    await pubsub.start();
-    thoregon.checkpoint("§§ thoregonsystem evolux.pubsub");
-
-    const everblack = (await import('/evolux.everblack')).service;
-    await everblack.install();
-    await everblack.start();
-    thoregon.checkpoint("§§ thoregonsystem evolux.everblack");
-
-    const aurora = (await import('/thoregon.aurora')).default;
-    await aurora.install();
-    await aurora.start();
-    thoregon.checkpoint("§§ thoregonsystem thoregon.aurora");
-
-    const gun = (await import('/terra.gun')).service;
-    await gun.install();
-    await gun.start();
-    thoregon.checkpoint("§§ thoregonsystem terra.gun");
-/*
-    const matter = (await import('/evolux.matter')).service;
-    await matter.install();
-    await matter.start();
-    thoregon.checkpoint("§§ thoregonsystem evolux.matter");
-*/
-/*
-    const heavymatter = (await import('/terra.ipfs')).service;
-    await heavymatter.install();
-    await heavymatter.start();
-    thoregon.checkpoint("§§ thoregonsystem terra.ipfs");
-*/
-
-    const archetim = (await import('/thoregon.archetim')).default;
-    await archetim.install();
-    await archetim.start();
-    thoregon.checkpoint("§§ thoregonsystem thoregon.archetim");
-
-    const identity = (await  import('/thoregon.identity')).default;
-    await identity.install();
-    await identity.start();
-    thoregon.checkpoint("§§ thoregonsystem thoregon.identity");
-
-    const truCloud = (await  import('/thoregon.truCloud')).default;
-    await truCloud.install();
-    await truCloud.start();
-    thoregon.checkpoint("§§ thoregonsystem thoregon.truCloud");
-}
+export const everblack = SEA;
 
 
 universe.atDawn(async universe => {
-    const componentLocation     = 'components';
-    const componentController = Controller.baseCwd('ThoregonComponentController');
-    tservices().components = componentController;
+    const gunservice = new GunService();
+    await gunservice.start();
 
-    // now setup the basic distributed system
-    await thoregonsystem(universe);
+    const identity = new IdentityReflection();
+    await identity.start();
+
+    const aurora = Aurora; // new Aurora();
+    await aurora.start();
+
+    const dorifer = new Dorifer();
+    await dorifer.start();
 
     // register credentials for testing
     // universe.Identity.addListener('auth', async () => await dorifer.restartApp() );
@@ -108,5 +66,4 @@ universe.atDawn(async universe => {
 });
 
 universe.atDusk(async universe => {
-    await tservices().components.exit();
 });

@@ -19,6 +19,22 @@ importScripts('./lib/zip/inflate.js');
 importScripts('./lib/zip/ArrayBufferReader.js');
 zip.useWebWorkers = false;  // don't use separate workers, this is a worker
 
+
+const debuglog = (...args) => logentries.push({ dttm: Date.now(), ...args }); // {};   // console.log(...args);
+
+// temp log
+let logentries = [];
+
+function getlog(filter) {
+    return filter
+           ? logentries.filter(filter)
+           : logentries;
+}
+
+function clearlog() {
+    logentries = [];
+}
+
 // const THOREGONPKG = './dist/thoregonB.zip';
 // var CACHE = 'PULS';
 
@@ -176,6 +192,7 @@ class Puls {
             // enforce same origin in any case!
             if (symlink) {
                 await event.respondWith((async () => {
+                    debuglog("redirect symlink", request.url, symlink);
                     return Response.redirect(symlink, 301);
                 })());
                 return;
@@ -185,19 +202,30 @@ class Puls {
                 let pathname = onlyPath(request);
                 let response;
 
+                debuglog("> fetch start", request.url);
+
                 // dev only
                 if (this.isDev) {
                     response = await this.fetchDevLoader(request);
-                    if (response) return response;
+                    if (response) {
+                        debuglog("< fetch dev loader", response.type, request.url);
+                        return response;
+                    }
                 }
 
                 // first lookup non caching loaders (mainly for dev and realtime)
                 response = await this.fetchNonCaching(request);
-                if (response) return response.type === 'error' ? undefined : response;
+                if (response) {
+                    debuglog("< fetch non caching", response.type, request.url);
+                    return response.type === 'error' ? undefined : response;
+                }
 
                 // not found in cache, lookup caching loaders
                 response = await this.fetchCaching(request);
-                if (response) return response.type === 'error' ? undefined : response;
+                if (response) {
+                    debuglog("< fetch caching OK", response.type, request.url);
+                    return response.type === 'error' ? undefined : response;
+                }
 
                 // Not found by any loader - return the result from a web server, but only if permitted
                 // `fetch` is essentially a "fallback"
@@ -208,7 +236,9 @@ class Puls {
                 //  - introduce refresh strategy when no headers
                 // await this.cache.put(pathname, response.clone());
                 if (!response) {
-                    debugger;
+                    debuglog("< fetch not found", request.url);
+                } else {
+                    debuglog("< default fetch", response.type, request.url);
                 }
 
                 return response;
@@ -223,6 +253,7 @@ class Puls {
     async fetchDevLoader(request) {
         let loader = this.getDevLoader();
         if (!this._devloader) return;
+        debuglog("fetch dev", request.url);
         let response = await loader.fetch(request);
         return response;
     }

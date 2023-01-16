@@ -32,6 +32,7 @@ class TDevLoader extends Loader {
                 this.reqQ    = {};     // keep requests till they are processed (observe requests will be kept longer till observation ends)
                 ws.onopen    = () => {
                     this.connected();
+                    debuglog("## DevLoader :: connected");
                     resolve(this);
                 };
                 ws.onmessage = (data) => this.message(data);
@@ -48,14 +49,18 @@ class TDevLoader extends Loader {
         let head = await this.head(pathname)
         if (head.error) return;
         // redirect to index if exists
+        debuglog("DevLoader > fetch", pathname);
         if (head.type !== 'file') {
             if (head.hasindex && isGET(request)) {
+                debuglog("DevLoader > HEAD: redirect to 'index.mjs'");
                 return Response.redirect(pathjoin(pathname,'index.mjs'), 302);    // 301: permanently moved, 302: temporarily moved
             } else if (head.type === 'dir') {
+                const dircontent = JSON.stringify(head);
+                debuglog("DevLoader > HEAD: dir content (JSON)", dircontent);
                 let meta = { headers: {
                         'Content-Type': 'application/json'
                     } };
-                return new Response(JSON.stringify(head), meta);
+                return new Response(dircontent, meta);
             }
             return;
         }
@@ -64,6 +69,7 @@ class TDevLoader extends Loader {
         let meta = { headers: {
             'Content-Type':  mime
         } };
+        debuglog("DevLoader > fetch get stream", mime);
         return new Response(stream, meta);
     }
 
@@ -82,6 +88,7 @@ class TDevLoader extends Loader {
                 path
             }
             this.reqQ[reqId] = { resolve, reject, ...req };
+            debuglog("DevLoader > ws get", path);
             this.ws.send(JSON.stringify(req));
         }));
     }
@@ -95,6 +102,7 @@ class TDevLoader extends Loader {
                 path
             }
             this.reqQ[reqId] = { resolve, reject, ...req };
+            debuglog("DevLoader > ws head", path);
             this.ws.send(JSON.stringify(req));
         }));
     }
@@ -107,28 +115,35 @@ class TDevLoader extends Loader {
         let client = this;
         // console.log(">> tdev:", path);
         let start = 0, length = size || 262144;
+        debuglog("DevLoader > read start", path);
         return new ReadableStream({
-           /**
-           * @param {ReadableStreamDefaultController} controller
-           */
-          pull(controller) {
-               (async () => {
-                   try {
-                       const { done, content, error, message } = await client.get(path, start, length);
-                       if (abort) return;   // if aborted during read don't enqueue anything
-                       if (error) throw error;
-                       if (content) controller.enqueue(Uint8Array.from(content.data));
-                       if (done) controller.close();
-                       start += value.length;
-                   } catch (error) {
-                       controller.error(error);
-                   }
-               })();
-          },
-          cancel(reason) {
-              abort = true;
-          }
-      });
+              /**
+               * @param {ReadableStreamDefaultController} controller
+               */
+              start(controller) {
+                  (async () => {
+                      let done, content, error, message;
+                      try {
+                          debuglog("DevLoader > stream pull", path);
+                          ({ done, content, error, message } = await client.get(path, start, length));
+                          if (abort) return;   // if aborted during read don't enqueue anything
+                          if (error) throw error;
+                          if (content) controller.enqueue(Uint8Array.from(content.data));
+                          if (done) controller.close();
+                          // start += content?.data?.length ?? 0;
+                          debuglog("DevLoader > stream pull OK", path);
+                      } catch (error) {
+                          debuglog("DevLoader > stream error", path, error);
+                          controller.error(error);
+                      }
+                  })();
+              },
+              pull(controller) {},  // don't need a pull in this case, whole data comes in one chunk
+              cancel(reason) {
+                  debuglog("DevLoader > stream about", path);
+                  abort = true;
+              }
+          });
     }
 
     canHandle(request) {
