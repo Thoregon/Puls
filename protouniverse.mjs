@@ -299,7 +299,10 @@ export default class ProtoUniverse {
         // setup the communication interface to the service worker
         this.definePulsInterface();
         // set development mode
-        if (devSettings?.isDev) await puls.dev(devSettings);
+        if (devSettings?.isDev) {
+            await puls.dev(devSettings);
+            await timeout(100);
+        }
         // add repositories
         await maintainRepositories(puls);
 

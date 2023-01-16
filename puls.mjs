@@ -19,7 +19,6 @@ importScripts('./lib/zip/inflate.js');
 importScripts('./lib/zip/ArrayBufferReader.js');
 zip.useWebWorkers = false;  // don't use separate workers, this is a worker
 
-
 const debuglog = (...args) => {};  // logentries.push({ dttm: Date.now(), ...args });  // console.log(...args);
 
 // temp log
@@ -328,9 +327,9 @@ class Puls {
                 this.devSettings = data.settings;
                 const isDev = !!data.settings.isDev;
                 if (isDev) {
-                    this.resumeDevLoader(this.devSettings);
+                    await this.resumeDevLoader(this.devSettings);
                 } else {
-                    this.pauseDevLoader();
+                    await this.pauseDevLoader();
                 }
                 this.isDev = isDev;
                 messageSource.postMessage({ cmd, "ack": true });
@@ -437,18 +436,18 @@ class Puls {
         this._devloader = loader;
     }
 
-    pauseDevLoader() {
+    async pauseDevLoader() {
         const devloader = this.getDevLoader();
-        if (devloader) devloader.pause();
+        if (devloader) await devloader.pause();
     }
 
-    resumeDevLoader(settings) {
+    async resumeDevLoader(settings) {
         const devloader = this.getDevLoader();
         if (!devloader) return;
         if (devloader.isReady()) {
-            devloader.resume(settings);
+            await devloader.resume(settings);
         } else {
-            devloader.start(settings);
+            await devloader.start(settings);
         }
     }
 

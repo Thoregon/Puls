@@ -45,6 +45,8 @@ class TDevLoader extends Loader {
     }
 
     async doFetch(request) {
+        let i = 5;
+        while (!this.isReady() && i--) await timeout(50);
         let pathname = new URL(request.url).pathname;
         let head = await this.head(pathname)
         if (head.error) return;
