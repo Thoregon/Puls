@@ -20,7 +20,7 @@ importScripts('./lib/zip/ArrayBufferReader.js');
 zip.useWebWorkers = false;  // don't use separate workers, this is a worker
 
 
-const debuglog = (...args) => logentries.push({ dttm: Date.now(), ...args }); // {};   // console.log(...args);
+const debuglog = (...args) => {};  // logentries.push({ dttm: Date.now(), ...args });  // console.log(...args);
 
 // temp log
 let logentries = [];
