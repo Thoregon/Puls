@@ -196,6 +196,8 @@ Object.defineProperties(thoregon, {
     'checkpoint'       : { value: (msg) => console.log(msg, Date.now() - thoregon.birth), configurable: false, enumerable: true, writable: false },
     'activateFirewalls': { value: async () => await protouniverse?.activateFirewalls(), configurable: false, enumerable : true, writable: false },
     'source'           : { value: source, configurable: false, enumerable: false, writable: false },
+ //   'loadTestData'     : { value: true, configurable: false, enumerable: false, writable: false },
+
 });
 
 /*
