@@ -19,6 +19,11 @@ importScripts('./lib/zip/inflate.js');
 importScripts('./lib/zip/ArrayBufferReader.js');
 zip.useWebWorkers = false;  // don't use separate workers, this is a worker
 
+const DEV = {
+    isDev: true,
+    thoregon: 'dev' // 'prod'    // 'prod' uses thoregon system from (browser) cache from, if missing it's loaded from repo ; 'dev' loads also thoregon system via the dev server
+}
+
 const debuglog = (...args) => {};  // logentries.push({ dttm: Date.now(), ...args });  // console.log(...args);
 
 // temp log
@@ -97,7 +102,8 @@ class Puls {
 
     reset() {
         this._registry          = {};
-        this.isDev              = false;
+        this.isDev              = DEV.isDev;
+        this.devSettings        = DEV;
         this._devloader         = undefined;
         this._cachingloaders    = [];
         this._noncachingloaders = [];
@@ -326,12 +332,16 @@ class Puls {
             case 'dev':
                 this.devSettings = data.settings;
                 const isDev = !!data.settings.isDev;
-                if (isDev) {
-                    await this.resumeDevLoader(this.devSettings);
+                if (this.isDev !== isDev) {     // todo [REFACTOR]: this is not correct! the devsettings should be propagated to the devloader anyways.
+                    if (isDev) {
+                        await this.resumeDevLoader(this.devSettings);
+                    } else {
+                        await this.pauseDevLoader();
+                    }
+                    this.isDev = isDev;
                 } else {
-                    await this.pauseDevLoader();
+                    await this.getDevLoader()?.use(this.devSettings);
                 }
-                this.isDev = isDev;
                 messageSource.postMessage({ cmd, "ack": true });
                 break;
         }
@@ -432,8 +442,13 @@ class Puls {
     // Dev Loader
     //
 
-    useDevLoader(loader) {
+    async useDevLoader(loader) {
         this._devloader = loader;
+        if (this.isDev) {
+            await loader.start(this.devSettings)
+        } else {
+            await loader.use(this.devSettings);
+        }
     }
 
     async pauseDevLoader() {
