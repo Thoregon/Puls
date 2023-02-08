@@ -26,7 +26,8 @@ export const HALT  = true;
  * Globals available in universe
  */
 
-export const gunpeers =    ['http://185.11.139.203:8765/gun'/*, 'https://matter.thoregon.io:8765/gun'*/];
+export const gunpeers = ['http://185.11.139.203:8765/gun', 'http://127.0.0.1:8765/gun'];
+//export const gunpeers =    ['http://185.11.139.203:8765/gun'/*, 'https://matter.thoregon.io:8765/gun'*/];
 
 //
 // test storae adapter
