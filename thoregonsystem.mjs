@@ -62,7 +62,7 @@ const aurora     = Aurora; // new Aurora();
 const dorifer    = new Dorifer();
 
 neuland.init(NeulandStorageAdapter, universe.NEULAND_STORAGE_OPT);
-neuland.start();
+await neuland.start();
 await gunservice.start();
 await identity.start();
 await aurora.start();
