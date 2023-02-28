@@ -20,6 +20,8 @@ import IdentityReflection      from '/thoregon.identity/lib/identityreflection.m
 import Dorifer                 from '/thoregon.truCloud/lib/dorifer.mjs';
 import Aurora                  from "/thoregon.aurora";
 
+import ThoregonDecorator       from "/thoregon.neuland/src/thoregondecorator.mjs";
+
 //
 // crypto, safety & security
 //
@@ -69,11 +71,13 @@ await aurora.start();
 await dorifer.start();
 
 //
-// information functions
+// testing & debugging
 //
 
 universe.p2ppolicy = () => universe.net[0];
 universe.p2padapter = () => universe.p2ppolicy().net[0];
+
+universe.NeuDecorator = ThoregonDecorator;
 
 // register credentials for testing
 // universe.Identity.addListener('auth', async () => await dorifer.restartApp() );
