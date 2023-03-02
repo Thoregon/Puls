@@ -7,7 +7,7 @@
  */
 
 import SEA                     from '/evolux.everblack/lib/crypto/sea.mjs'
-import GunService              from '/terra.gun/lib/reliant/gunservice.mjs';
+// import GunService              from '/terra.gun/lib/reliant/gunservice.mjs';
 import { Automerge, Peer }     from "/thoregon.neuland/modules/browserpeer/index.mjs";
 import BrowserLifecycleEmitter from "/thoregon.neuland/modules/browserpeer/browserlifecycleemitter.mjs";
 import NeulandStorageAdapter   from "/thoregon.neuland/modules/browserpeer/idxdbneulandstorageadapter.mjs";
@@ -21,7 +21,7 @@ import Dorifer                 from '/thoregon.truCloud/lib/dorifer.mjs';
 import Aurora                  from "/thoregon.aurora";
 
 import ThoregonDecorator       from "/thoregon.neuland/src/thoregondecorator.mjs";
-
+thoregon.checkpoint("init Thoregon System 1");
 //
 // crypto, safety & security
 //
@@ -53,22 +53,32 @@ universe.$Automerge = Automerge;
 universe.$syncmgr   = SyncManager.setup();
 universe.$mq        = MQ.setup();
 
+thoregon.checkpoint("init Thoregon System 2");
+
 //
 // components
 //
 
 const neuland    = new NeulandDB();
-const gunservice = new GunService();
+thoregon.checkpoint("init Thoregon System 3");
+// const gunservice = new GunService();
 const identity   = new IdentityReflection();
+thoregon.checkpoint("init Thoregon System 4");
 const aurora     = Aurora; // new Aurora();
+thoregon.checkpoint("init Thoregon System 5");
 const dorifer    = new Dorifer();
+thoregon.checkpoint("init Thoregon System 6");
 
 neuland.init(NeulandStorageAdapter, universe.NEULAND_STORAGE_OPT);
 await neuland.start();
-await gunservice.start();
+thoregon.checkpoint("init Thoregon System 7");
+// await gunservice.start();
 await identity.start();
+thoregon.checkpoint("init Thoregon System 8");
 await aurora.start();
+thoregon.checkpoint("init Thoregon System 9");
 await dorifer.start();
+thoregon.checkpoint("init Thoregon System 10");
 
 //
 // testing & debugging
@@ -77,7 +87,7 @@ await dorifer.start();
 universe.p2ppolicy = () => universe.net[0];
 universe.p2padapter = () => universe.p2ppolicy().net[0];
 
-universe.NeuDecorator = ThoregonDecorator;
+// universe.NeuDecorator = ThoregonDecorator;
 
 // register credentials for testing
 // universe.Identity.addListener('auth', async () => await dorifer.restartApp() );

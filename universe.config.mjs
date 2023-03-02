@@ -38,7 +38,9 @@ export const defaultapp = 'thatsme.app';
 
 
 universe.atDawn(async (universe) => {
+    thoregon.checkpoint("b4 import Thoregon System");
     await import('./thoregonsystem.mjs');
+    thoregon.checkpoint("imported Thoregon System");
 
     universe.lifecycle.triggerPrepare();
     universe.lifecycle.triggerStart();
