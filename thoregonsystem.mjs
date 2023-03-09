@@ -36,9 +36,14 @@ universe.$lifecycle = new BrowserLifecycleEmitter();
 universe.$Peer      = Peer;
 universe.$netconfig = {
     policies: [P2PNetworkPolicy],
-        p2p: {
-        adapters: [PeerJSNetworkAdapter],
-            knownPeers: ['PeerJS-ynGhbGJjEh3BCNH1mSBTykj89a7PXNzO']
+    p2p     : {
+        adapters  : [PeerJSNetworkAdapter],
+        knownPeers: ['PeerJS-ynGhbGJjEh3BCNH1mSBTykj89a7PXNzO'],
+        signaling: {
+            host  : "185.11.139.203",
+            port  : 9000,
+            // path  : "/myapp",
+        }
     },
 };
 
