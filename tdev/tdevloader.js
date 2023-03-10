@@ -80,32 +80,45 @@ class TDevLoader extends Loader {
      */
     /*async*/ get(path, start, length) {
         return new Promise(((resolve, reject) => {
-            let reqId = this.wsid++;
-            let req = {
-                id: reqId,
-                cmd: 'get',
-                once: true,
-                start,
-                length,
-                path
+            let i = 3;
+            try {
+                let reqId        = this.wsid++;
+                let req          = {
+                    id  : reqId,
+                    cmd : 'get',
+                    once: true,
+                    start,
+                    length,
+                    path
+                }
+                this.reqQ[reqId] = { resolve, reject, ...req };
+                debuglog("DevLoader > ws get", path);
+                this.ws.send(JSON.stringify(req));
+            } catch (e) {
+                // todo [OPEN]: implement retry with wait an max retries
+                throw Error("Can't reach dev server: '" + path +"' " + e.stack);
             }
-            this.reqQ[reqId] = { resolve, reject, ...req };
-            debuglog("DevLoader > ws get", path);
-            this.ws.send(JSON.stringify(req));
         }));
     }
-    /*async*/ head(path) {
+    /*async*/ head(path, retry = 3) {
         return new Promise(((resolve, reject) => {
-            let reqId = this.wsid++;
-            let req = {
-                id: reqId,
-                cmd: 'head',
-                once: true,
-                path
+            try {
+                let reqId        = this.wsid++;
+                let req          = {
+                    id  : reqId,
+                    cmd : 'head',
+                    once: true,
+                    path
+                }
+                this.reqQ[reqId] = { resolve, reject, ...req };
+                debuglog("DevLoader > ws head", path);
+                this.ws.send(JSON.stringify(req));
+            } catch (e) {
+                if (!retry--) throw Error("Can't reach dev server: '" + path +"' " + e.stack);
+                this.head(path, retry)
+                    .then(resolve)
+                    .catch(reject);
             }
-            this.reqQ[reqId] = { resolve, reject, ...req };
-            debuglog("DevLoader > ws head", path);
-            this.ws.send(JSON.stringify(req));
         }));
     }
 

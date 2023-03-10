@@ -57,6 +57,7 @@ const contentTypesByExtension = {   // todo: add more mime types
     'woff2': 'font/woff2',
     'tty'  : 'font/truetype',
     'otf'  : 'font/opentype',
+    'wasm' : 'application/wasm',
     'eot'  : 'application/vnd.ms-fontobject',
 };
 
