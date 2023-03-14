@@ -20,7 +20,8 @@ import IdentityReflection      from '/thoregon.identity/lib/identityreflection.m
 import Dorifer                 from '/thoregon.truCloud/lib/dorifer.mjs';
 import Aurora                  from "/thoregon.aurora";
 
-import ThoregonDecorator       from "/thoregon.neuland/src/thoregondecorator.mjs";
+import ThoregonDecorator from "/thoregon.neuland/src/thoregondecorator.mjs";
+import { KNOWN_PEERS }   from "./universe.config.mjs";
 thoregon.checkpoint("init Thoregon System 1");
 //
 // crypto, safety & security
@@ -38,7 +39,7 @@ universe.$netconfig = {
     policies: [P2PNetworkPolicy],
     p2p     : {
         adapters  : [PeerJSNetworkAdapter],
-        knownPeers: ['PeerJS-ynGhbGJjEh3BCNH1mSBTykj89a7PXNzO'],
+        knownPeers: universe.KNOWN_PEERS,
         signaling: {
             host  : "185.11.139.203",
             port  : 9000,
