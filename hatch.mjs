@@ -6,6 +6,7 @@
  * @see: {@link https://github.com/Thoregon}
  */
 
+
 // todo [REFACTOR]: enable multiple widgets
 window.onwidgetready = () => {};
 
