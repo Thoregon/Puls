@@ -7,22 +7,22 @@
  */
 
 import SEA                     from '/evolux.everblack/lib/crypto/sea.mjs'
-// import GunService              from '/terra.gun/lib/reliant/gunservice.mjs';
 import { Automerge, Peer }     from "/thoregon.neuland/modules/browserpeer/index.mjs";
 import BrowserLifecycleEmitter from "/thoregon.neuland/modules/browserpeer/browserlifecycleemitter.mjs";
 import NeulandStorageAdapter   from "/thoregon.neuland/modules/browserpeer/idxdbneulandstorageadapter.mjs";
 import NeulandDB               from "/thoregon.neuland/src/storage/neulanddb.mjs";
 import P2PNetworkPolicy        from "/thoregon.neuland/src/p2p/p2pnetworkpolicy.mjs";
 import PeerJSNetworkAdapter    from "/thoregon.neuland/src/p2p/peerjsnetworkadapter.mjs";
+import ChannelRelayAdapter     from "/thoregon.neuland/src/network/channel/channelrelayadapter.mjs";
 import SyncManager             from "/thoregon.neuland/src/sync/syncmanager.mjs";
 import MQ                      from "/thoregon.neuland/src/mq/mq.mjs";
 import IdentityReflection      from '/thoregon.identity/lib/identityreflection.mjs';
 import Dorifer                 from '/thoregon.truCloud/lib/dorifer.mjs';
 import Aurora                  from "/thoregon.aurora";
+import ThoregonDecorator       from "/thoregon.neuland/src/thoregondecorator.mjs";
 
-import ThoregonDecorator from "/thoregon.neuland/src/thoregondecorator.mjs";
-import { KNOWN_PEERS }   from "./universe.config.mjs";
 thoregon.checkpoint("init Thoregon System 1");
+
 //
 // crypto, safety & security
 //
@@ -33,6 +33,8 @@ universe.$lifecycle = new BrowserLifecycleEmitter();
 //
 // network policies & adapters,
 //
+
+const NETWORK_ADAPTER = thoregon.webRTC ? PeerJSNetworkAdapter : ChannelRelayAdapter;
 
 universe.$Peer      = Peer;
 universe.$netconfig = {
