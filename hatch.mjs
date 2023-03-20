@@ -6,6 +6,7 @@
  * @see: {@link https://github.com/Thoregon}
  */
 
+import Universe from "./lib/universe.mjs";
 
 // todo [REFACTOR]: enable multiple widgets
 window.onwidgetready = () => {};
@@ -77,6 +78,10 @@ export default class ThoregonWidget extends HTMLElement {
 
     get widgetURL() {
         throw Error(`NotImplemented: ${this.constructor.name}.elementTag()`);
+    }
+
+    connect() {
+        universe.net.relayTo(this.iframe.contentWindow);
     }
 
     //
@@ -217,6 +222,7 @@ export default class ThoregonWidget extends HTMLElement {
             this._connected = true;
             this.prepare();
             this.render();
+            this.connect();
             try {
                 window.onwidgetready();
             } catch (e) {
