@@ -197,7 +197,7 @@ Object.defineProperties(thoregon, {
     'activateFirewalls': { value: async () => await protouniverse?.activateFirewalls(), configurable: false, enumerable : true, writable: false },
     'source'           : { value: source, configurable: false, enumerable: false, writable: false },
     'loadTestData'     : { value: true, configurable: false, enumerable: true, writable: false },
-    'webRTC'           : { value: window.self !== window.top, configurable: false, enumerable: true, writable: false }, // in iframes, webRTC is not available due to security (why?)
+    'webRTC'           : { value: window.self === window.top, configurable: false, enumerable: true, writable: false }, // in iframes, webRTC is not available due to security (why?)
 });
 
 /*
