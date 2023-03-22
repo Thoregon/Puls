@@ -40,7 +40,7 @@ universe.$Peer      = Peer;
 universe.$netconfig = {
     policies: [P2PNetworkPolicy],
     p2p     : {
-        adapters  : [PeerJSNetworkAdapter],
+        adapters  : [NETWORK_ADAPTER],
         knownPeers: universe.KNOWN_PEERS,
         signaling: {
             host  : "185.11.139.203",
