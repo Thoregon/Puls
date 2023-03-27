@@ -23,7 +23,7 @@ export const HALT  = true;
 
 export const NEULAND_STORAGE_OPT = { store: 'data', name: 'neuland' };    // can override: writeCount, writeInterval
 
-export const KNOWN_PEERS = ['PeerJS-ynGhbGJjEh3BCNH1mSBTykj89a7PXNzO'];
+export const KNOWN_PEERS = ['PeerJS-Ybeew3NiFgXRT1uu3eIrauxLSpLKSZ51'];
 
 // export const gunpeers =    ['http://185.11.139.203:8765/gun', /* 'http://127.0.0.1:8765/gun' , 'https://matter.thoregon.io:8765/gun'*/];
 
