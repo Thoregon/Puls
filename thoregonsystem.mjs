@@ -95,6 +95,12 @@ thoregon.checkpoint("init Thoregon System 10");
 universe.p2ppolicy = () => universe.net[0];
 universe.p2padapter = () => universe.p2ppolicy().net[0];
 
+try {
+    window.parent.postMessage(evt, '*');
+} catch (e) {
+    console.error("try postMessage", e);
+}
+
 // universe.NeuDecorator = ThoregonDecorator;
 
 // register credentials for testing
