@@ -21,8 +21,8 @@ export const HALT  = true;
 /**
  * Globals available in universe
  */
-
-export const NEULAND_STORAGE_OPT = { store: 'data', name: 'neuland' };    // can override: writeCount, writeInterval
+const ONE_MIN = 60 * 1000;
+export const NEULAND_STORAGE_OPT = { store: 'data', name: 'neuland', backup: ONE_MIN, maxmod: 1000 };    // can override: writeCount, writeInterval
 
 // export const gunpeers =    ['http://185.11.139.203:8765/gun', /* 'http://127.0.0.1:8765/gun' , 'https://matter.thoregon.io:8765/gun'*/];
 
