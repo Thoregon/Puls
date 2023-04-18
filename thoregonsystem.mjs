@@ -19,7 +19,7 @@ import MQ                      from "/thoregon.neuland/src/mq/mq.mjs";
 import IdentityReflection      from '/thoregon.identity/lib/identityreflection.mjs';
 import Dorifer                 from '/thoregon.truCloud/lib/dorifer.mjs';
 import Aurora                  from "/thoregon.aurora";
-import ThoregonDecorator       from "/thoregon.archetim/src/thoregondecorator.mjs";
+import ThoregonDecorator       from "/thoregon.archetim/lib/thoregondecorator.mjs";
 
 thoregon.checkpoint("init Thoregon System 1");
 
