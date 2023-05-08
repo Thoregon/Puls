@@ -59,11 +59,14 @@ class TDevLoader extends Loader {
             } else if (head.type === 'dir') {
                 const dircontent = JSON.stringify(head);
                 debuglog("DevLoader > HEAD: dir content (JSON)", dircontent);
-                let meta = { headers: {
-                        'Content-Type': 'text/plain'
+                let meta = {
+                    status: 200,
+                    headers: {
+                        'Content-Type': 'text/plain',
+                        'Structure': dircontent
                     } };
-                const blob = new Blob([dircontent], {type: 'text/plain'});
-                const res = new Response(blob, meta);
+                // const blob = new Blob([dircontent], {type: 'text/plain'});
+                const res = new Response(dircontent, meta);
                 return res;
             }
             return;
