@@ -18,6 +18,10 @@ export { default as KNOWN_PEERS }        from './knownpeers.mjs';
 export const DEBUG = false;
 export const HALT  = true;
 
+// only this dubug IDs will be logged, or DEBUG = true
+export const DEBUGIDS     = ['** NeulandDB', '## Identity', '== ThoregonDecorator', '++ AppInstance', ':: AgentInstance'];
+export const DEBUGCONSOLE = false;
+
 /**
  * Globals available in universe
  */
