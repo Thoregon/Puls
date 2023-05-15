@@ -21,6 +21,7 @@ export const HALT  = true;
 // only this dubug IDs will be logged, or DEBUG = true
 export const DEBUGIDS     = ['** NeulandDB', '## Identity', '== ThoregonDecorator', '++ AppInstance', ':: AgentInstance', '-- SyncManager', '-- SyncDriverMerge', ')) P2PNetworkPolicy', ')) NetworkPolicy', ')) PeerJSNetworkAdapter', ')) NetworkAdapter'];
 export const DEBUGCONSOLE = false;
+export const LOGUNCAUGHT  = false;
 
 /**
  * Globals available in universe
