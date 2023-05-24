@@ -11,7 +11,8 @@
 
 const THOREGONMODULES = /^\/thoregon\.(.+)|^\/evolux\.(.+)|^\/terra\.(.+)/;
 
-const WSROOT = `ws:${location.host}`;
+const WSROOT         = `ws:${location.host}`;
+const RETRY_INTERVAL = 100;
 
 const isGET = (request) => request.method === 'GET';
 
@@ -119,10 +120,12 @@ class TDevLoader extends Loader {
                 debuglog("DevLoader > ws head", path);
                 this.ws.send(JSON.stringify(req));
             } catch (e) {
-                if (!retry--) throw Error("Can't reach dev server: '" + path +"' " + e.stack);
-                this.head(path, retry)
-                    .then(resolve)
-                    .catch(reject);
+                if (!retry--) reject(Error("Can't reach dev server: '" + path +"' " + e.stack));
+                setTimeout(() => {
+                    this.head(path, retry)
+                        .then(resolve)
+                        .catch(reject);
+                }, RETRY_INTERVAL);
             }
         }));
     }
