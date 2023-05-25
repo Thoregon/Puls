@@ -16,6 +16,8 @@ const RETRY_INTERVAL = 100;
 
 const isGET = (request) => request.method === 'GET';
 
+const debuglogDL = (...args) => { logentries.push({ dttm: Date.now(), ...args }); console.log(...args); };  // debuglog;
+
 class TDevLoader extends Loader {
 
     /*
@@ -26,15 +28,16 @@ class TDevLoader extends Loader {
     /*async*/ doStart() {
         return new Promise((resolve, reject) => {
             try {
+                debuglogDL("## DevLoader :: start");
                 let ws  = new WebSocket(WSROOT);
                 this.ws = ws;
 
                 this.wsid    = 1;      // just a counter to identify the requests
                 this.reqQ    = {};     // keep requests till they are processed (observe requests will be kept longer till observation ends)
                 ws.onopen    = () => {
+                    debuglogDL("## DevLoader :: connected");
                     this.connected();
-                    debuglog("## DevLoader :: connected");
-                    resolve(this);
+                    resolve(false);
                 };
                 ws.onmessage = (data) => this.message(data);
                 ws.onclose   = (code, reason) => this.close(code, reason);
@@ -52,14 +55,14 @@ class TDevLoader extends Loader {
         let head = await this.head(pathname)
         if (head.error) return;
         // redirect to index if exists
-        debuglog("DevLoader > fetch", pathname);
+        debuglogDL("DevLoader > fetch", pathname);
         if (head.type !== 'file') {
             if (head.hasindex && isGET(request)) {
-                debuglog("DevLoader > HEAD: redirect to 'index.mjs'");
+                debuglogDL("DevLoader > HEAD: redirect to 'index.mjs'");
                 return Response.redirect(pathjoin(pathname,'index.mjs'), 302);    // 301: permanently moved, 302: temporarily moved
             } else if (head.type === 'dir') {
                 const dircontent = JSON.stringify(head);
-                debuglog("DevLoader > HEAD: dir content (JSON)", dircontent);
+                debuglogDL("DevLoader > HEAD: dir content (JSON)", dircontent);
                 let meta = {
                     status: 200,
                     headers: {
@@ -77,7 +80,7 @@ class TDevLoader extends Loader {
         let meta = { headers: {
             'Content-Type':  mime
         } };
-        debuglog("DevLoader > fetch get stream", mime);
+        debuglogDL("DevLoader > fetch get stream", mime);
         return new Response(stream, meta);
     }
 
@@ -98,15 +101,15 @@ class TDevLoader extends Loader {
                     path
                 }
                 this.reqQ[reqId] = { resolve, reject, ...req };
-                debuglog("DevLoader > ws get", path);
+                debuglogDL("DevLoader > ws get", path);
                 this.ws.send(JSON.stringify(req));
             } catch (e) {
                 // todo [OPEN]: implement retry with wait an max retries
-                throw Error("Can't reach dev server: '" + path +"' " + e.stack);
+                reject(Error("Can't reach dev server: '" + path +"' " + e.stack));
             }
         }));
     }
-    /*async*/ head(path, retry = 3) {
+    /*async*/ head(path) {
         return new Promise(((resolve, reject) => {
             try {
                 let reqId        = this.wsid++;
@@ -117,15 +120,10 @@ class TDevLoader extends Loader {
                     path
                 }
                 this.reqQ[reqId] = { resolve, reject, ...req };
-                debuglog("DevLoader > ws head", path);
+                debuglogDL("DevLoader > ws head", path);
                 this.ws.send(JSON.stringify(req));
             } catch (e) {
-                if (!retry--) reject(Error("Can't reach dev server: '" + path +"' " + e.stack));
-                setTimeout(() => {
-                    this.head(path, retry)
-                        .then(resolve)
-                        .catch(reject);
-                }, RETRY_INTERVAL);
+                reject(Error("Can't reach dev server: '" + path +"' " + e.stack));
             }
         }));
     }
@@ -138,7 +136,7 @@ class TDevLoader extends Loader {
         let client = this;
         // console.log(">> tdev:", path);
         let start = 0, length = size || 262144;
-        debuglog("DevLoader > read start", path);
+        debuglogDL("DevLoader > read start", path);
         return new ReadableStream({
               /**
                * @param {ReadableStreamDefaultController} controller
@@ -195,11 +193,13 @@ class TDevLoader extends Loader {
         if (req.once) delete this.reqQ[res.id];
         req.resolve(res);   // todo [REFACTOR]: check for error and maintain req.reject
     }
+
     close(code, reason) {
         delete this.ws;
         this.statePaused();
         this.reconnect();   // ignore the await
     }
+
     error(err) {
         console.log(err);
     }
@@ -207,6 +207,7 @@ class TDevLoader extends Loader {
     // todo: switch to SyncManager!
     async reconnect() {
         await timeout(3000);
+        debuglogDL("## DevLoader :: reconnect");
         await this.doStart();
     }
 }
