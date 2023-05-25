@@ -16,7 +16,7 @@ const RETRY_INTERVAL = 100;
 
 const isGET = (request) => request.method === 'GET';
 
-const debuglogDL = (...args) => { logentries.push({ dttm: Date.now(), ...args }); console.log(...args); };  // debuglog;
+const debuglogDL = (...args) => debuglog; // { logentries.push({ dttm: Date.now(), ...args }); console.log(...args); };
 
 class TDevLoader extends Loader {
 
