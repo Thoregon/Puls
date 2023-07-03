@@ -122,7 +122,7 @@ export default class ThoregonWidget extends HTMLElement {
         let attrs = this.getAttributeNames();
         let params = {};
         attrs.forEach(name => {
-            if (hash.indexOf('{' + name + '}') < 0) params[name] = encodeURIComponent(this.getAttribute(name));
+            params[name] = encodeURIComponent(this.getAttribute(name));
             hash = hash.replaceAll('{' + name + '}', encodeURIComponent(this.getAttribute(name)));
         });
         // todo: add all other attributes as params
