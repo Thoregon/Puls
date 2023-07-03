@@ -119,10 +119,18 @@ export default class ThoregonWidget extends HTMLElement {
     replaceAppParams() {
         let url = new URL(this.widgetURL);
         let hash = url.hash;
-        this.getAttributeNames().forEach(name => {
+        let attrs = this.getAttributeNames();
+        let params = {};
+        attrs.forEach(name => {
+            if (hash.indexOf('{' + name + '}') < 0) params[name] = encodeURIComponent(this.getAttribute(name));
             hash = hash.replaceAll('{' + name + '}', encodeURIComponent(this.getAttribute(name)));
         });
         // todo: add all other attributes as params
+        let sep = "?";
+        Object.entries(params).forEach(([name, value]) => {
+            hash += sep + name + "=" + value;
+            sep = "&";
+        })
         url.hash = hash;
         return url.toString();
     }
