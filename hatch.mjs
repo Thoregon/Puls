@@ -92,6 +92,7 @@ export default class ThoregonWidget extends HTMLElement {
         var shadow      = this.shadowRoot || this.attachShadow({ mode: 'open' });
         let style = document.createElement('style');
         style.textContent = commoncss;
+
         shadow.appendChild(style);
     }
 
@@ -204,7 +205,7 @@ export default class ThoregonWidget extends HTMLElement {
     }
 
     resize(evt) {
-//        if (evt.data.height) this.iframe.style.height = evt.data.height + "px";
+        if (evt.data.height) this.iframe.style.height = evt.data.height + "px";
 //        if (evt.data.width)  this.iframe.style.width  = evt.data.width  + "px";
     }
 
