@@ -113,7 +113,7 @@ export default {
             issues     : [],
             versions   : {
                 '1.0.0': {
-                    modules: ['easypay-module-product', 'easypay-module-paymentplan', 'easypay-module-integration', 'easypay-module-order'],
+                    modules: ['easypay-module-product', 'easypay-module-paymentplan', 'easypay-module-credential', 'easypay-module-order'],
                     images : {},      // each version may provide its own images
                     notes  : [],
                     tags   : [],
