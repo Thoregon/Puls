@@ -36,7 +36,7 @@ export const NEULAND_STORAGE_OPT = { store: 'data', name: 'neuland', backup: ONE
 // test storae adapter
 //
 
-export const HTTPFILESINK = 'http://185.11.139.203:7779'; // 'http://test.thoregon.app:7779';
+export const HTTPFILESINK = 'https://resource.thoregon.io'; // 'http://test.thoregon.app:7779';
 
 //
 // define app if no reference for this distribution
