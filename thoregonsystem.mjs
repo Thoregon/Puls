@@ -69,6 +69,8 @@ thoregon.checkpoint("init Thoregon System 2");
 //
 
 const neuland    = new NeulandDB();
+const neulandlocal = new NeulandDB();
+
 thoregon.checkpoint("init Thoregon System 3");
 // const gunservice = new GunService();
 const identity   = new IdentityReflection();
@@ -80,6 +82,10 @@ thoregon.checkpoint("init Thoregon System 6");
 
 neuland.init(NeulandStorageAdapter, universe.NEULAND_STORAGE_OPT);
 await neuland.start();
+neulandlocal.init(NeulandStorageAdapter, universe.NEULANDLOCAL_STORAGE_OPT);
+await neulandlocal.start();
+
+
 thoregon.checkpoint("init Thoregon System 7");
 // await gunservice.start();
 await identity.start();
@@ -104,6 +110,7 @@ universe.p2padapter = () => universe.p2ppolicy().net[0];
 
 universe.atDusk(async (universe, code) => {
     universe.neuland?.stop();
+    universe.neulandlocal?.stop();
 })
 
 // universe.NeuDecorator = ThoregonDecorator;
