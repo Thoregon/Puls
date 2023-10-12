@@ -72,6 +72,15 @@ export default class ThoregonWidget extends HTMLElement {
         }
     }
 
+    get fitToContent() {
+        return this.getAttribute('fit-to-content');
+    }
+
+    isFitToContent() {
+        if ( ! this.hasAttribute('fit-to-content') ) return true;
+        return (this.fitToContent === "true");
+    }
+
     //
     // Widget subclasses
     //
@@ -205,6 +214,9 @@ export default class ThoregonWidget extends HTMLElement {
     }
 
     resize(evt) {
+
+        if ( ! this.isFitToContent() ) return;
+
         if (evt.data.height) this.iframe.style.height = evt.data.height + "px";
 //        if (evt.data.width)  this.iframe.style.width  = evt.data.width  + "px";
     }
