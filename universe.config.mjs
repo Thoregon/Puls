@@ -10,6 +10,9 @@
 //
 export { path }                          from '/evolux.util';
 
+import * as pspecials from "/evolux.util/lib/specialbrowser.mjs";
+export const specials = pspecials;
+
 // import TESTIDENTITY                      from "./testidentity.mjs";
 
 export { default as myagents }           from './agent_config.mjs';
