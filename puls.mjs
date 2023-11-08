@@ -42,7 +42,8 @@ function clearlog() {
 // const THOREGONPKG = './dist/thoregonB.zip';
 // var CACHE = 'PULS';
 
-const contentTypesByExtension = {   // todo: add more mime types
+// --- todo: use package 'mime-types' in future -> https://github.com/jshttp/mime-types
+const contentTypesByExtension = {
     'css'  : 'text/css',
     'mjs'  : 'application/javascript',
     'js'   : 'application/javascript',
