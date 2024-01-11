@@ -496,8 +496,8 @@ self.puls = new Puls();
  * now loaders can be defined get loaders
  */
 importScripts('./lib/loaders/loader.js')
-importScripts('./tdev/tdevloader.js');
-// importScripts('./tdev/tdevloaderhttp.js');
+// importScripts('./tdev/tdevloader.js');
+importScripts('./tdev/tdevloaderhttp.js');
 importScripts('./lib/loaders/repoloader.js');
 //importScripts('./lib/loaders/webloader.js');
 
