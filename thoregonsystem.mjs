@@ -51,58 +51,58 @@ universe.$netconfig = {
     },
 };
 
-const netopt = {};
+const netopt  = {};
 universe.$net = universe.netconfig.policies.map((Policy) => new Policy(netopt));
 
-//
-// crdt & sync
-//
+export default async () => {
+    //
+    // crdt & sync
+    //
 
-universe.$Automerge = Automerge;
-universe.$syncmgr   = SyncManager.setup();
-universe.$mq        = MQ.setup();
+    universe.$Automerge = Automerge;
+    universe.$syncmgr   = SyncManager.setup();
+    universe.$mq        = MQ.setup();
 
-thoregon.checkpoint("init Thoregon System 2");
+    thoregon.checkpoint("init Thoregon System 2");
 
-//
-// components
-//
+    //
+    // components
+    //
 
-const neuland    = new NeulandDB();
-const neulandlocal = new NeulandDB();
+    const neuland      = new NeulandDB();
+    const neulandlocal = new NeulandDB();
 
-thoregon.checkpoint("init Thoregon System 3");
-// const gunservice = new GunService();
-const identity   = new IdentityReflection();
-thoregon.checkpoint("init Thoregon System 4");
-const aurora     = Aurora; // new Aurora();
-thoregon.checkpoint("init Thoregon System 5");
-const dorifer    = new Dorifer();
-thoregon.checkpoint("init Thoregon System 6");
+    thoregon.checkpoint("init Thoregon System 3");
+    const identity = new IdentityReflection();
+    thoregon.checkpoint("init Thoregon System 4");
+    const aurora = Aurora; // new Aurora();
+    thoregon.checkpoint("init Thoregon System 5");
+    const dorifer = new Dorifer();
+    thoregon.checkpoint("init Thoregon System 6");
 
-neuland.init(NeulandStorageAdapter, universe.NEULAND_STORAGE_OPT);
-await neuland.start();
-neulandlocal.init(NeulandStorageAdapter, universe.NEULANDLOCAL_STORAGE_OPT);
-await neulandlocal.start();
+    neuland.init(NeulandStorageAdapter, universe.NEULAND_STORAGE_OPT);
+    await neuland.start();
+    neulandlocal.init(NeulandStorageAdapter, universe.NEULANDLOCAL_STORAGE_OPT);
+    await neulandlocal.start();
 
 
-thoregon.checkpoint("init Thoregon System 7");
-// await gunservice.start();
-await identity.start();
-thoregon.checkpoint("init Thoregon System 8");
-await aurora.start();
-thoregon.checkpoint("init Thoregon System 9");
-await dorifer.start();
-thoregon.checkpoint("init Thoregon System 10");
+    thoregon.checkpoint("init Thoregon System 7");
+    await identity.start();
+    thoregon.checkpoint("init Thoregon System 8");
+    await aurora.start();
+    thoregon.checkpoint("init Thoregon System 9");
+    await dorifer.start();
+    thoregon.checkpoint("init Thoregon System 10");
 
-//
-// testing & debugging
-//
-await LogSink.init();
-universe.$logsink = LogSink;
+    //
+    // testing & debugging
+    //
+    await LogSink.init();
+    universe.$logsink = LogSink;
 
-universe.p2ppolicy = () => universe.net[0];
-universe.p2padapter = () => universe.p2ppolicy().net[0];
+    universe.p2ppolicy  = () => universe.net[0];
+    universe.p2padapter = () => universe.p2ppolicy().net[0];
+}
 
 //
 // shutdown
@@ -112,26 +112,3 @@ universe.atDusk(async (universe, code) => {
     universe.neuland?.stop();
     universe.neulandlocal?.stop();
 })
-
-// universe.NeuDecorator = ThoregonDecorator;
-
-// register credentials for testing
-// universe.Identity.addListener('auth', async () => await dorifer.restartApp() );
-// await universe.Identity.useIdentity(TESTIDENTITY);
-
-// don't need a double lifecycle handling
-// universe.lifecycle.addEventListener('prepare', () => {
-//     neuland.init(NeulandStorageAdapter, universe.NEULAND_STORAGE_OPT);
-// });
-//
-// universe.lifecycle.addEventListener('start', async () => {
-//     neuland.start();
-//     await gunservice.start();
-//     await identity.start();
-//     await aurora.start();
-//     await dorifer.start();
-//
-//     // register credentials for testing
-//     // universe.Identity.addListener('auth', async () => await dorifer.restartApp() );
-//     // await universe.Identity.useIdentity(TESTIDENTITY);
-// });

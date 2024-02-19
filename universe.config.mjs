@@ -50,7 +50,9 @@ export const defaultapp = 'thatsme.app';
 
 universe.atDawn(async (universe) => {
     thoregon.checkpoint("b4 import Thoregon System");
-    await import('./thoregonsystem.mjs');
+    const sys = await import('./thoregonsystem.mjs');
+    const bootfn = sys.default;
+    await bootfn();
     thoregon.checkpoint("imported Thoregon System");
 
     universe.lifecycle.triggerPrepare();
