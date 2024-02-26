@@ -210,6 +210,8 @@ export default class ThoregonWidget extends HTMLElement {
             case 'initialized':
                 this.dispatchWidgetEvent('initialized', {});
                 break;
+            case 'redirect':
+                this.redirectPage(evt);
         }
     }
 
@@ -219,6 +221,11 @@ export default class ThoregonWidget extends HTMLElement {
 
         if (evt.data.height) this.iframe.style.height = evt.data.height + "px";
 //        if (evt.data.width)  this.iframe.style.width  = evt.data.width  + "px";
+    }
+
+    redirect(evt) {
+        const url = evt.data.url;
+        if (url) window.location.replace(url);
     }
 
     /**
