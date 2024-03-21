@@ -15,7 +15,6 @@ export const specials = pspecials;
 
 // import TESTIDENTITY                      from "./testidentity.mjs";
 
-export { default as myagents }           from './agent_config.mjs';
 export { default as KNOWN_PEERS }        from './knownpeers.mjs';
 
 export const DEBUG = false;

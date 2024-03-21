@@ -26,8 +26,8 @@
 // repository entiries for boot
 //
 
-import genesis from "./genesis.mjs";
-import repos   from "./repos.mjs";
+// import genesis from "./genesis.mjs";
+// import repos   from "./repos.mjs";
 
 //
 // helpers
@@ -490,5 +490,3 @@ export default class ProtoUniverse {
     // new Spike().doit();
     // console.log('** PULS beats');
 })();
-
-// console.log('## genesis.mjs END');

@@ -30,7 +30,7 @@ export default {
                     notes  : [],
                     tags   : [],
                     sources: ['/dist/thoregonB.zip'],
-                    digest : '',  // SHA256 digets of all components in the archive
+                    digest : {},  // SHA256 digets of all components in the archive
                 }
             }
         }
@@ -70,9 +70,9 @@ export default {
         */
     },
     NEULAND: {
-        'greenpay.app'    : {
+        'upayme.app'    : {
             publisher  : {
-                name   : 'greenpay.plus',
+                name   : 'upayme.plus',
                 pubkeys: {
                     spub: "aYuWl5u0rXkRApuhAv-eS-hrdrb4YXpAYJWinUUgmug.Nzw6iVxluP2apytVKx-d2BvQ5_8KyZOlEaT0bXgOFHg",
                     epub: "HU5SfoYC8drGbybExYFA_4b5hC0gMdvEgEjGgvRXyaI.37719Ua1-wtW5I34ks0DcSBH1hb60c1tJOPoucaEbq0",
