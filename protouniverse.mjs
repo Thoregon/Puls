@@ -64,7 +64,7 @@ let   isDev = false; // devparam ? devparam === 'true' || devparam === '1' : win
 
 const devSettings = { isDev };
 try {
-    const module = (await import('./universe.dev.mjs'));
+    const module = (await import('./etc/universe.dev.mjs'));
     isDev = devSettings.isDev = true;
     if (module.DEV) Object.assign(devSettings, module.DEV);
 } catch (ignore) {}

@@ -44,7 +44,7 @@ universe.$netconfig = {
         adapters  : [NETWORK_ADAPTER],
         knownPeers: universe.KNOWN_PEERS,
         signaling : {
-            host: "185.11.139.203",
+            host: universe.PEERSIGNALING,  // "185.11.139.203",
             port: 9000,
             // path  : "/myapp",
         }
