@@ -17,6 +17,7 @@ export const specials = pspecials;
 
 export { default as myagents }           from './agent_config.mjs';
 export { default as KNOWN_PEERS }        from './knownpeers.mjs';
+export { default as HTTPFILESINK }       from './resourcesink.mjs';
 
 export const DEBUG = false;
 export const HALT  = true;
@@ -27,6 +28,8 @@ export const DEBUGIDS     = ['** NeulandDB', '== ThoregonDecorator', '== AccessO
 export const DEBUGCONSOLE = false;
 export const LOGUNCAUGHT  = false;
 
+export const PEERSIGNALING = "peer.thoregon.io";
+
 /**
  * Globals available in universe
  */
@@ -34,13 +37,11 @@ const ONE_MIN = 60 * 1000;
 export const NEULAND_STORAGE_OPT = { store: 'data', name: 'neuland', backup: ONE_MIN, maxmod: 1000 };    // can override: writeCount, writeInterval
 export const NEULANDLOCAL_STORAGE_OPT = { location: 'data', name: 'neulandlocal' };    // can override: writeCount, writeInterval
 
-// export const gunpeers =    ['http://185.11.139.203:8765/gun', /* 'http://127.0.0.1:8765/gun' , 'https://matter.thoregon.io:8765/gun'*/];
-
 //
 // test storae adapter
 //
 
-export const HTTPFILESINK = 'https://resource.thoregon.io'; // 'http://test.thoregon.app:7779';
+// export const HTTPFILESINK = 'https://resource.thoregon.io'; // 'http://test.thoregon.app:7779';
 
 //
 // define app if no reference for this distribution
@@ -50,7 +51,7 @@ export const defaultapp = 'thatsme.app';
 
 universe.atDawn(async (universe) => {
     thoregon.checkpoint("b4 import Thoregon System");
-    const sys = await import('./thoregonsystem.mjs');
+    const sys = await import('../thoregonsystem.mjs');
     const bootfn = sys.default;
     await bootfn();
     thoregon.checkpoint("imported Thoregon System");
