@@ -315,7 +315,7 @@ const buildHatch = (tag, url) => {
 
 (async () => {
     try {
-        const widgetdefs = (await import('./widgets.mjs')).default;
+        const widgetdefs = (await import('./etc/widgets.mjs')).default;
         if (!widgetdefs) return;
         const root     = document.body;
         const elements = [...root.querySelectorAll('*')].filter(element => element.tagName.includes('-'));
