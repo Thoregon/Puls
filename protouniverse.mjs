@@ -304,6 +304,8 @@ export default class ProtoUniverse {
         if (devSettings?.isDev) {
             await puls.dev(devSettings);
             await timeout(100);
+        } else {
+            await puls.dev({ isDev: false });
         }
         // add repositories
         await maintainRepositories(puls);

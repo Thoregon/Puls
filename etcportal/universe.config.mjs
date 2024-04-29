@@ -1,5 +1,5 @@
 /**
- * DEFAULT
+ *  ETCPORTAL
  *
  * @author: Bernhard Lukassen
  */
@@ -19,8 +19,6 @@ export { default as KNOWN_PEERS }        from './knownpeers.mjs';
 export { default as HTTPFILESINK }       from './resourcesink.mjs';
 
 export { default as services }           from './services.mjs';
-
-export { default as account } from "./account.mjs";
 
 export const DEBUG = false;
 export const HALT  = true;

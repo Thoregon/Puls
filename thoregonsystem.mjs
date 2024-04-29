@@ -21,6 +21,7 @@ import Dorifer                 from '/thoregon.truCloud/lib/dorifer.mjs';
 import Aurora                  from "/thoregon.aurora";
 import LogSink                 from "/evolux.universe/lib/reliant/logsink.mjs";
 import ThoregonDecorator       from "/thoregon.archetim/lib/thoregondecorator.mjs";
+import SelfSovereignIdentity from "/thoregon.identity/lib/selfsovereignidentity.mjs"
 
 thoregon.checkpoint("init Thoregon System 1");
 
