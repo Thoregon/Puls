@@ -299,6 +299,54 @@ export default {
                     "sources": ['/dist/upaymenexusapi.zip']
                 }
             }
+        },
+        "upayme-style-customer": {
+            "publisher": {
+                "id": "upayme.plus",
+                "name": "uPayMe Main Repo",
+                "uri": "https://upayme.plus"
+            },
+            "licence": "*",
+            "description": "",
+            "latest": "1.0.0",
+            "images": {},
+            "notes": [],
+            "issues": [],
+            "versions": {
+                "1.0.0": {
+                    "modules": [
+                        "upayme-style-customer"
+                    ],
+                    "images": {},
+                    "notes": [],
+                    "tags": [],
+                    "sources": ['/dist/upayme-style-customer.zip']
+                }
+            }
+        },
+        "upayme-style-nexus": {
+            "publisher": {
+                "id": "upayme.plus",
+                "name": "uPayMe Main Repo",
+                "uri": "https://upayme.plus"
+            },
+            "licence": "*",
+            "description": "",
+            "latest": "1.0.0",
+            "images": {},
+            "notes": [],
+            "issues": [],
+            "versions": {
+                "1.0.0": {
+                    "modules": [
+                        "upayme-style-nexus"
+                    ],
+                    "images": {},
+                    "notes": [],
+                    "tags": [],
+                    "sources": ['/dist/upayme-style-nexus.zip']
+                }
+            }
         }
     }
 }
