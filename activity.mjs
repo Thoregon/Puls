@@ -14,7 +14,8 @@ globalThis.universe = { account }
 const restService = {
     async record(eventlog) {
         try {
-            const res = await fetch('/xactivity/record?p=' + encodeURIComponent(JSON.stringify(eventlog)));
+            const service = universe.SA_REST ?? '';
+            const res = await fetch(service + '/xactivity/record?p=' + encodeURIComponent(JSON.stringify(eventlog)));
         } catch (e) {
             console.error(e);
         }
