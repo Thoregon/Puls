@@ -63,11 +63,13 @@ let   isDev = false; // devparam ? devparam === 'true' || devparam === '1' : win
 //
 
 const devSettings = { isDev };
+/*
 try {
     const module = (await import('./etc/universe.dev.mjs'));
     isDev = devSettings.isDev = true;
     if (module.DEV) Object.assign(devSettings, module.DEV);
 } catch (ignore) {}
+*/
 
 let protouniverse;
 
@@ -288,6 +290,7 @@ export default class ProtoUniverse {
 
     async inflate() {
         thoregon.checkpoint("§§ protouniverse inflate");
+/*
         try {
             // install service worker with the IPFS peer
             await this.installServiceWorker();
@@ -309,6 +312,7 @@ export default class ProtoUniverse {
         }
         // add repositories
         await maintainRepositories(puls);
+*/
 
         // establish the IPFS loader
         // await this.initWorkers();
