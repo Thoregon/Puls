@@ -33,6 +33,9 @@ export const LOGUNCAUGHT  = false;
 
 export const PEERSIGNALING = "peer.thoregon.io";
 
+import IDENTITY from "./identity.mjs";
+export const ssi = IDENTITY;
+
 /**
  * Globals available in universe
  */
