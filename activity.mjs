@@ -14,8 +14,9 @@ globalThis.universe = { account }
 const restService = {
     async record(eventlog) {
         try {
-            const service = universe.SA_REST ?? '';
+            const service = universe.account.SA_REST ?? '';
             const res = await fetch(service + '/xactivity/record?p=' + encodeURIComponent(JSON.stringify(eventlog)));
+            console.log(">> Activity.record");
             return res.ok;
         } catch (e) {
             console.error(e);
@@ -24,6 +25,8 @@ const restService = {
 }
 
 async function handleActivity() {
+    console.log(">> handleActivity 1");
+
     // Get the query string portion of the URL
     const url = new URL(window.location.href);
     // Parse the query string into key-value pairs
@@ -37,6 +40,7 @@ async function handleActivity() {
 
     const targetURL = urlParams.get('target');
 
+    console.log(">> handleActivity 2");
     const affiliateManager = AffiliateActionManager.withService(restService);
     const affData = {
         productid  : params.productid,
@@ -44,12 +48,11 @@ async function handleActivity() {
         campaignkey: params.campaignkey
     }
 
+    console.log(">> handleActivity 3");
     await affiliateManager.recordClick(affData);
 
-    debugger;
+    console.log(">> handleActivity 4");
     setTimeout(() => window.top.location.href = targetURL, 300);
-
-
 }
-debugger;
+
 (async () => await handleActivity())();

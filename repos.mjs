@@ -37,7 +37,8 @@ export default {
                         "thoregon.identity",
                         "thoregon.tru4D",
                         "thoregon.truCloud",
-                        "thoregon.aurora"
+                        "thoregon.aurora",
+                        "thoregon.ux",
                     ],
                     "images": {},
                     "notes": [],

@@ -47,7 +47,7 @@ universe.$netconfig = {
         knownPeers: universe.KNOWN_PEERS,
         signaling : {
             host: universe.PEERSIGNALING,  // "185.11.139.203",
-            port: 9000,
+            port: universe.PEERSIGNALINGPORT,
             // path  : "/myapp",
         }
     },
@@ -72,7 +72,7 @@ export default async () => {
     //
 
     const neuland      = new NeulandDB();
-    const neulandlocal = new NeulandDB();
+    // const neulandlocal = new NeulandDB();
 
     thoregon.checkpoint("init Thoregon System 3");
     const identity = new IdentityReflection();
@@ -84,8 +84,8 @@ export default async () => {
 
     neuland.init(NeulandStorageAdapter, universe.NEULAND_STORAGE_OPT);
     await neuland.start();
-    neulandlocal.init(NeulandStorageAdapter, universe.NEULANDLOCAL_STORAGE_OPT);
-    await neulandlocal.start();
+//    neulandlocal.init(NeulandStorageAdapter, universe.NEULANDLOCAL_STORAGE_OPT);
+//    await neulandlocal.start();
 
 
     thoregon.checkpoint("init Thoregon System 7");

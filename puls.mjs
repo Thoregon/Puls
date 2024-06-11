@@ -498,7 +498,8 @@ self.puls = new Puls();
 importScripts('./lib/loaders/loader.js')
 // importScripts('./tdev/tdevloader.js');
 importScripts('./tdev/tdevloaderhttp.js');
-importScripts('./lib/loaders/repoloader.js');
+importScripts('./lib/loaders/httploader.js');
+// importScripts('./lib/loaders/repoloader.js');
 //importScripts('./lib/loaders/webloader.js');
 
 // this loader may be reactivated in future
