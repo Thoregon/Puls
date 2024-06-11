@@ -16,13 +16,14 @@ const restService = {
         try {
             const service = universe.SA_REST ?? '';
             const res = await fetch(service + '/xactivity/record?p=' + encodeURIComponent(JSON.stringify(eventlog)));
+            return res.ok;
         } catch (e) {
             console.error(e);
         }
     }
 }
 
-function handleActivity() {
+async function handleActivity() {
     // Get the query string portion of the URL
     const url = new URL(window.location.href);
     // Parse the query string into key-value pairs
@@ -36,18 +37,19 @@ function handleActivity() {
 
     const targetURL = urlParams.get('target');
 
-    const affiliateManager = new AffiliateActionManager();
-    affiliateManager.useService(restService);
+    const affiliateManager = AffiliateActionManager.withService(restService);
     const affData = {
         productid  : params.productid,
         affiliate  : params.affiliateid.trim().toLowerCase(),
         campaignkey: params.campaignkey
     }
 
-    affiliateManager.recordClick(affData);
+    await affiliateManager.recordClick(affData);
 
-    window.top.location.href = targetURL;
+    debugger;
+    setTimeout(() => window.top.location.href = targetURL, 300);
+
 
 }
-
-handleActivity();
+debugger;
+(async () => await handleActivity())();

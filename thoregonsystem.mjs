@@ -40,6 +40,7 @@ const NETWORK_ADAPTER = thoregon.webRTC ? PeerJSNetworkAdapter : ChannelRelayAda
 
 universe.$Peer      = Peer;
 universe.$netconfig = {
+    peerid  : universe.PEERID,
     policies: [P2PNetworkPolicy],
     p2p     : {
         adapters  : [NETWORK_ADAPTER],
