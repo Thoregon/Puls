@@ -30,6 +30,7 @@ export const DEBUGCONSOLE = false;
 export const LOGUNCAUGHT  = false;
 
 export const PEERSIGNALING = "peer.thoregon.io";
+export const PEERSIGNALINGPORT = 9000;
 
 /**
  * Globals available in universe
