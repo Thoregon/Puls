@@ -29,6 +29,8 @@
 // import genesis from "./genesis.mjs";
 // import repos   from "./repos.mjs";
 
+import APPHOSTMAPPING from "/apps/apphostmapping.mjs";
+
 //
 // helpers
 //
@@ -53,7 +55,7 @@ let registration;
  */
 // const url = new URL(document.location.href);
 // const devparam = url.searchParams.get('isDev');
-let   isDev = false; // devparam ? devparam === 'true' || devparam === '1' : window.location.hostname === 'localhost' || window.location.pathname.indexOf('dev.') > -1;   // todo: review if either 'localhost' or 'thoergondev.html', not both!
+let   isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'; // false; // devparam ? devparam === 'true' || devparam === '1' : window.location.hostname === 'localhost' || window.location.pathname.indexOf('dev.') > -1;   // todo: review if either 'localhost' or 'thoergondev.html', not both!
 // try {
 //    isDev = (await import("./puls.dev.mjs")).default;
 // } catch (ignore) {}
@@ -200,6 +202,7 @@ Object.defineProperties(thoregon, {
     'source'           : { value: source, configurable: false, enumerable: false, writable: false },
     'loadTestData'     : { value: true, configurable: false, enumerable: true, writable: false },
     'webRTC'           : { value: window.self === window.top, configurable: false, enumerable: true, writable: false }, // in iframes, webRTC is not available due to security (why?)
+    'appname'          : { value: whichApp(), configurable: false, enumerable: true, writable: false },
 });
 
 /*
@@ -278,6 +281,19 @@ async function maintainRepositories(puls) {
     } catch (ignore) { }    // no initial repositories defined
 }
 
+function whichApp() {
+    try {
+        const host = window.location.hostname;
+        if (APPHOSTMAPPING[host]) return APPHOSTMAPPING[host];
+        const hash = window.location.hash;
+        if (!hash || hash.length < 3) return null;
+        const app = hash.substring(1).split('/')[0];
+        return app;
+    } catch (e) {
+        return null;
+    }
+}
+
 /**
  * Protouniverse
  */
@@ -290,7 +306,6 @@ export default class ProtoUniverse {
 
     async inflate() {
         thoregon.checkpoint("§§ protouniverse inflate");
-
         try {
             // install service worker with the IPFS peer
             await this.installServiceWorker();
@@ -311,19 +326,36 @@ export default class ProtoUniverse {
             await puls.dev({ isDev: false });
         }
         // add repositories
-        await maintainRepositories(puls);
+        // await maintainRepositories(puls);
+        const app = whichApp();
+        if (app) {
+            const start = Date.now();
+            console.log("§§ protouniverse: request load app dependencies");
+            // await puls.withApp(app);
+            console.log("§§ protouniverse: DONE load app dependencies", Date.now() - start);
+        }
+
 
         // establish the IPFS loader
         // await this.initWorkers();
 
         // import basic THORE͛GON components
-        thoregon.checkpoint("§§ protouniverse inflate 4");
+        thoregon.checkpoint("§§ protouniverse inflate 2");
+
+
+        // await this.connectToAllAgents();
+
+        await this.letThereBeLight();
+    }
+
+    async letThereBeLight() {
+        thoregon.checkpoint("§§ protouniverse letThereBeLight 1");
         // const watchdog = setTimeout(() => window.location.reload(), 1500);
         const letThereBeLight = (await import('/evolux.universe/lib/reliant/letThereBeLight.mjs')).default;
         // clearTimeout(watchdog);
-        thoregon.checkpoint("§§ protouniverse inflate 5");
+        thoregon.checkpoint("§§ protouniverse letThereBeLight 2");
         // and boot
-        let universe = await letThereBeLight();
+        let universe = await letThereBeLight('universe.remote.config');
 
         thoregon.checkpoint("§§ start delta");
 
@@ -349,6 +381,7 @@ export default class ProtoUniverse {
             state               : async ()         => await this.serviceWorkerRequest({ cmd: 'state' }),
             dev                 : async (settings) => await this.serviceWorkerRequest({ cmd: 'dev', settings }),
             repo                : async (settings) => await this.serviceWorkerRequest({ cmd: 'repo', settings }),
+            withApp             : async (app)      => await this.serviceWorkerRequest({ cmd: 'app', app }),
             inCache             : async (path)     => await this.serviceWorkerRequest({ cmd: 'inCache', path }),
             listCache           : async ()         => await this.serviceWorkerRequest({ cmd: 'listCache' }),
             refreshThoregon     : async (refreshUI = true) => {
@@ -379,12 +412,12 @@ export default class ProtoUniverse {
             // todo [REFACTOR]: check the support status for workers as module -> https://stackoverflow.com/questions/44118600/web-workers-how-to-import-modules
             /* support feature detection
                   try {
-                    registration = await serviceWorker.register('pulssw.js', { type: 'module' });
+                    registration = await serviceWorker.register('upaymepulssw.js', { type: 'module' });
                   } catch(error) {
-                    registration = await serviceWorker.register('pulssw_0.js');
+                    registration = await serviceWorker.register('upaymepulssw.js');
                   }
              */
-            await serviceWorker.register('./pulssw.js', /*{ scope: '/', type: "module" }*/);
+            await serviceWorker.register('./upaymepulssw.js', /*{ scope: '/', type: "module" }*/);
             registration = await serviceWorker.ready;
 
             serviceWorker.addEventListener("message", async (event) => await this.serviceworkerMessage(event) );

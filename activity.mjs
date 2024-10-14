@@ -14,7 +14,8 @@ globalThis.universe = { account }
 const restService = {
     async record(eventlog) {
         try {
-            const service = universe.account.SA_REST ?? '';
+            const service = universe.SA_REST ?? '';
+            // todo [**REMOTE**]
             const res = await fetch(service + '/xactivity/record?p=' + encodeURIComponent(JSON.stringify(eventlog)));
             console.log(">> Activity.record");
             return res.ok;
@@ -47,6 +48,8 @@ async function handleActivity() {
         affiliate  : params.affiliateid.trim().toLowerCase(),
         campaignkey: params.campaignkey
     }
+
+    // todo [OPEN]: check existing (reggistered) affiliates
 
     console.log(">> handleActivity 3");
     await affiliateManager.recordClick(affData);

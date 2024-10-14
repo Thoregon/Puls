@@ -90,7 +90,6 @@ export default class ThoregonWidget extends HTMLElement {
     }
 
     connect() {
-        universe.net.relayTo(this.iframe.contentWindow);
     }
 
     //

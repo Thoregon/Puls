@@ -20,7 +20,7 @@ export { default as HTTPFILESINK }       from './resourcesink.mjs';
 
 export { default as services }           from './services.mjs';
 
-export { default as account } from "./account.mjs";
+// export { default as account } from "./account.mjs";
 
 export const DEBUG = false;
 export const HALT  = true;
@@ -32,6 +32,7 @@ export const DEBUGCONSOLE = false;
 export const LOGUNCAUGHT  = false;
 
 export const PEERSIGNALING = "peer.thoregon.io";
+export const PEERSIGNALINGPORT = "9000";
 
 import IDENTITY from "./identity.mjs";
 export const ssi = IDENTITY;

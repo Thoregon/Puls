@@ -167,7 +167,7 @@ class TDevLoader extends Loader {
           });
     }
 
-    canHandle(request) {
+    async canHandle(request) {
         let url = request.url;
         let pathname = onlyPath(url);
         return this.isResponsible(pathname);

@@ -14,17 +14,14 @@
  * @see: {@link https://github.com/Thoregon}
  */
 
-importScripts('./lib/zip/zip.js');
-importScripts('./lib/zip/inflate.js');
-importScripts('./lib/zip/ArrayBufferReader.js');
-zip.useWebWorkers = false;  // don't use separate workers, this is a worker
+importScripts()
 
 const DEV = {
     isDev: true,
     thoregon: 'dev' // 'prod'    // 'prod' uses thoregon system from (browser) cache from, if missing it's loaded from repo ; 'dev' loads also thoregon system via the dev server
 }
 
-const debuglog = (...args) => {};  // logentries.push({ dttm: Date.now(), ...args });  // console.log(...args);
+const debuglog = (...args) => {}; // console.log(...args); // {};  // logentries.push({ dttm: Date.now(), ...args }); console.log(...args);
 
 // temp log
 let logentries = [];
@@ -236,12 +233,15 @@ class Puls {
 
                 // Not found by any loader - return the result from a web server, but only if permitted
                 // `fetch` is essentially a "fallback"
-                // response = await fetch(request);
-                response = await fetch(request.url, {
-                    method: request.method,
-                    headers: request.headers,
-                    body: request.body,
-                });
+                if (request.method === 'POST') {
+                    response = await fetch(request);
+                } else {
+                    response = await fetch(request.url, {
+                        method: request.method,
+                        headers: request.headers,
+                        body: request.body,
+                    });
+                }
                 // save response in cache
                 // todo [OPEN]
                 //  - consider http cache headers
@@ -336,6 +336,10 @@ class Puls {
                 const done = await this.maintainRepolist(data.settings);
                 messageSource.postMessage({ cmd: "repo", "ack": done });
                 break;
+            case 'app':
+                await this.withApp(data.app);
+                messageSource.postMessage({ cmd: "app", "ack": true });
+                break;
             case 'dev':
                 this.devSettings = data.settings;
                 const isDev = !!data.settings.isDev;
@@ -380,6 +384,13 @@ class Puls {
     //
     // maintain a repository list. priority top down. the first definition of a module counts
     //
+
+    async withApp(app) {
+        if (!app) return;
+        await puls._devloader?.withApp(app);
+        if (puls._cachingloaders) for await (const loader of puls._cachingloaders) { await loader.withApp(app) }
+        if (puls._noncachingloaders) for await (const loader of puls._noncachingloaders) { await loader.withApp(app) }
+    }
 
     async maintainRepolist(settings) {
         if (!settings) return;
@@ -501,9 +512,10 @@ self.puls = new Puls();
  * now loaders can be defined get loaders
  */
 importScripts('./lib/loaders/loader.js')
+importScripts('./lib/loaders/moduleloader.js');
 // importScripts('./tdev/tdevloader.js');
-importScripts('./tdev/tdevloaderhttp.js');
-importScripts('./lib/loaders/httploader.js');
+// importScripts('./tdev/tdevloaderhttp.js');
+// importScripts('./lib/loaders/httploader.js');
 // importScripts('./lib/loaders/repoloader.js');
 //importScripts('./lib/loaders/webloader.js');
 
