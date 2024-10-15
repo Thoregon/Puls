@@ -28,7 +28,7 @@ universe.$lifecycle = new BrowserLifecycleEmitter();
 // Remote Agents
 //
 if (window.neulandconfig?.conn === 'duplex') {
-    const WSConnector = await import("/thoregon.crystalline/lib/connectors/wsconnector.mjs");
+    const WSConnector = (await import("/thoregon.crystalline/lib/connectors/wsconnector.mjs")).default;
     const endpoint = 'wsapi';
     let agenturls = {};
 
