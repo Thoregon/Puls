@@ -14,12 +14,7 @@ export { path }                          from '/evolux.util';
 import * as pspecials from "/evolux.util/lib/specialbrowser.mjs";
 export const specials = pspecials;
 
-export const IDENTITY_CLASS = '/thoregon.identity/lib/identityremote.mjs';
-import IDENTITY                      from "./identity.mjs";
-export const ssi = IDENTITY;
-
-
-export { default as HTTPFILESINK }       from './resourcesink.mjs';
+// export { default as HTTPFILESINK }       from './resourcesink.mjs';
 
 export { default as account } from "./account.mjs";
 
