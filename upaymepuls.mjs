@@ -306,6 +306,10 @@ class Puls {
                 await this.addLoader(data);
                 messageSource.postMessage({ cmd, "ack": true });
                 break;
+            case 'open':
+                await this.clientOpened();
+                messageSource.postMessage({ cmd: "open", "ack": true });
+                break;
             case 'worker':
                 break;
             case 'matter':
@@ -384,6 +388,12 @@ class Puls {
     //
     // maintain a repository list. priority top down. the first definition of a module counts
     //
+    async clientOpened() {
+        await puls._devloader?.clientOpened();
+        if (puls._cachingloaders) for await (const loader of puls._cachingloaders) { await loader.clientOpened() }
+        if (puls._noncachingloaders) for await (const loader of puls._noncachingloaders) { await loader.clientOpened() }
+    }
+
 
     async withApp(app) {
         if (!app) return;

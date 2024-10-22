@@ -325,13 +325,14 @@ export default class ProtoUniverse {
         } else {
             await puls.dev({ isDev: false });
         }
+        await puls.open();
         // add repositories
         // await maintainRepositories(puls);
         const app = whichApp();
         if (app) {
             const start = Date.now();
             console.log("§§ protouniverse: request load app dependencies");
-            // await puls.withApp(app);
+            await puls.withApp(app);
             console.log("§§ protouniverse: DONE load app dependencies", Date.now() - start);
         }
 
@@ -381,6 +382,7 @@ export default class ProtoUniverse {
             state               : async ()         => await this.serviceWorkerRequest({ cmd: 'state' }),
             dev                 : async (settings) => await this.serviceWorkerRequest({ cmd: 'dev', settings }),
             repo                : async (settings) => await this.serviceWorkerRequest({ cmd: 'repo', settings }),
+            open                : async ()         => await this.serviceWorkerRequest({ cmd: 'open' }),
             withApp             : async (app)      => await this.serviceWorkerRequest({ cmd: 'app', app }),
             inCache             : async (path)     => await this.serviceWorkerRequest({ cmd: 'inCache', path }),
             listCache           : async ()         => await this.serviceWorkerRequest({ cmd: 'listCache' }),
