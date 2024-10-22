@@ -21,6 +21,10 @@ export { default as account } from "./account.mjs";
 export { default as SA_REST } from './sa.mjs';
 export { default as NEXUS_REST } from './nexus.mjs';
 
+export const IDENTITY_CLASS = '/thoregon.identity/lib/identityremote.mjs';
+import IDENTITY                      from "./identity.mjs";
+export const ssi = IDENTITY;
+
 // export const SA_REST = 'http://localhost:30101';
 // export const NEXUS_REST = 'http://localhost:30000';
 
